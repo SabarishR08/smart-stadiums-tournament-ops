@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if the user is authenticated and is a staff member
+    function isStaff() {
+      return request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'staff';
+    }
+
+    // Rules for the users collection
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Crowd status is readable by anyone, but writable only by staff
+    match /crowd_status/{docId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isStaff();
+    }
+
+    // Transportation is readable by anyone, but writable only by staff
+    match /transportation/{docId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isStaff();
+    }
+
+    // Broadcasts are readable by anyone, but writable only by staff
+    match /broadcasts/{docId} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    // Incidents are completely private - readable and writable only by staff
+    match /incidents/{docId} {
+      allow read, write: if isStaff();
+    }
+
+    // Sustainability scores are readable by everyone, and users can create/update their own document
+    match /sustainability_scores/{userId} {
+      allow read: if true;
+      allow create, update: if true;
+    }
+  }
+}
