@@ -385,7 +385,7 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
           {!accessibilityMode && (
             <div className="absolute top-0 left-0 right-0 h-40 opacity-25 pointer-events-none select-none overflow-hidden">
               <img 
-                src="/src/assets/images/ronaldo_tunnel_crying_1783343479370.jpg" 
+                src="/images/ronaldo_tunnel_crying_1783343479370.jpg" 
                 alt="Ronaldo Emotional Moment" 
                 className="w-full h-full object-cover object-center"
                 referrerPolicy="no-referrer"

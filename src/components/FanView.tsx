@@ -474,7 +474,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           {[
             {
               id: 0,
-              image: "/src/assets/images/messi_kissing_trophy_1783343437487.jpg",
+              image: "/images/messi_kissing_trophy_1783343437487.jpg",
               match: "ARG vs POR • STADIUM FEED",
               score: "2 - 1",
               time: "78' SEC HALF",
@@ -486,7 +486,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
             },
             {
               id: 1,
-              image: "/src/assets/images/ronaldo_sitting_despair_1783343459849.jpg",
+              image: "/images/ronaldo_sitting_despair_1783343459849.jpg",
               match: "POR vs FRA • REPLAY RECAP",
               score: "0 - 0",
               time: "EXTRA TIME",
@@ -498,7 +498,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
             },
             {
               id: 2,
-              image: "/src/assets/images/ronaldo_tunnel_crying_1783343479370.jpg",
+              image: "/images/ronaldo_tunnel_crying_1783343479370.jpg",
               match: "POR vs MAR • HISTORIC TUNNEL",
               score: "0 - 1",
               time: "FULL TIME",
@@ -510,7 +510,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
             },
             {
               id: 3,
-              image: "/src/assets/images/neymar_brazil_focus_1783343496361.jpg",
+              image: "/images/neymar_brazil_focus_1783343496361.jpg",
               match: "BRA vs GER • LIVE",
               score: "1 - 1",
               time: "34' FIRST HALF",
