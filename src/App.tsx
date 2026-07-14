@@ -1,13 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { seedInitialDataIfEmpty } from './lib/firebase';
 import FanView from './components/FanView';
 import OpsDashboard from './components/OpsDashboard';
-import { MapPin, Menu, X, Shield, Users } from 'lucide-react';
+import TournamentWidget from './components/TournamentWidget';
+import TournamentPreviewCard from './components/TournamentPreviewCard';
+import { MapPin, Menu, X, Shield, Users, Trophy } from 'lucide-react';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'fan' | 'ops'>('fan');
   const [accessibilityMode, setAccessibilityMode] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [tournamentOpen, setTournamentOpen] = useState<boolean>(false);
+  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openPreview  = () => { if (hoverTimeout.current) clearTimeout(hoverTimeout.current); setPreviewOpen(true); };
+  const closePreview = () => { hoverTimeout.current = setTimeout(() => setPreviewOpen(false), 180); };
+  const openFull     = () => { setPreviewOpen(false); setTournamentOpen(true); };
 
   useEffect(() => {
     seedInitialDataIfEmpty();
@@ -99,6 +108,31 @@ export default function App() {
               <span className="dot-live" />
               MIAMI GARDENS • LIVE
             </div>
+
+            {/* Tournament Hub button */}
+            <div style={{ position: 'relative' }} onMouseEnter={openPreview} onMouseLeave={closePreview}>
+              <button
+                onClick={openFull}
+                title="Tournament Hub"
+                aria-label="Open Tournament Hub"
+                aria-expanded={previewOpen}
+                aria-haspopup="true"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)',
+                  background: previewOpen ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.04)',
+                  color: previewOpen ? '#93c5fd' : 'rgba(255,255,255,0.55)',
+                  fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                <Trophy size={13} style={{ color: '#fbbf24' }} />
+                Tournament
+              </button>
+              {previewOpen && (
+                <TournamentPreviewCard onViewAll={openFull} />
+              )}
+            </div>
           </div>
 
           {/* Mobile hamburger */}
@@ -129,6 +163,19 @@ export default function App() {
                 }}
               >{label}</button>
             ))}
+            {/* Tournament Hub shortcut for mobile */}
+            <button
+              onClick={() => { openFull(); setMobileMenuOpen(false); }}
+              style={{
+                textAlign: 'left', padding: '10px 14px', borderRadius: 10,
+                fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
+                background: 'rgba(251,191,36,0.08)',
+                color: '#fbbf24',
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}
+            >
+              <Trophy size={14}/> Tournament Hub
+            </button>
           </div>
         )}
       </nav>
@@ -176,6 +223,8 @@ export default function App() {
           STADIUMPULSE AI · v4.0 · Gemini + Firestore + Firebase Auth
         </div>
       </footer>
+      {/* ── TOURNAMENT HUB MODAL ────────────────────────────────────────── */}
+      {tournamentOpen && <TournamentWidget onClose={() => setTournamentOpen(false)} />}
     </div>
   );
 }

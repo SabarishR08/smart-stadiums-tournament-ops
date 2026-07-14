@@ -3,11 +3,8 @@ import { collection, doc, onSnapshot, setDoc, increment } from 'firebase/firesto
 import { db } from '../lib/firebase';
 import { ChatMessage, ZoneStatus, TransportationStatus, WayfindingInfo, SustainabilityScore } from '../types';
 import MapSVG from './MapSVG';
-import TournamentWidget from './TournamentWidget';
-import {
-  Volume2, VolumeX, Mic, MicOff, Leaf, Users, Bus, Send,
-  Accessibility, CheckCircle, HelpCircle, Sparkles, Trophy,
-  Newspaper, BarChart2, UserCircle2
+import { Volume2, VolumeX, Mic, MicOff, Leaf, Users, Bus, Send,
+  Accessibility, CheckCircle, HelpCircle, Sparkles
 } from 'lucide-react';
 
 interface FanViewProps {
@@ -99,8 +96,6 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
   const [classResult, setClassResult]         = useState<any>(null);
   const [scanMsg, setScanMsg]                 = useState('');
   const [heroSlide, setHeroSlide]             = useState(0);
-  const [tournamentTab, setTournamentTab]     = useState<'matches'|'news'|'standings'|'players'>('standings');
-  const [tournamentOpen, setTournamentOpen]   = useState(false);
 
   /* ── effects ── */
   useEffect(() => {
@@ -256,33 +251,6 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           <div style={{ position:'absolute', bottom:14, left:20, zIndex:20, display:'flex', gap:5 }}>
             {slides.map((_,i) => <button key={i} onClick={()=>setHeroSlide(i)} aria-label={`Slide ${i+1}`} style={{ width: heroSlide===i ? 22 : 6, height:5, borderRadius:99, border:'none', cursor:'pointer', background: heroSlide===i ? '#3b82f6' : 'rgba(255,255,255,0.2)', transition:'all 0.3s', padding:0 }} />)}
           </div>
-        </div>
-      )}
-
-      {/* ── TOURNAMENT QUICK-ACCESS STRIP ─────────────────────────────── */}
-      <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
-        {([
-          { key:'matches',   label:'Matches',   icon: <Trophy       size={13}/> },
-          { key:'news',      label:'News',      icon: <Newspaper    size={13}/> },
-          { key:'standings', label:'Standings', icon: <BarChart2    size={13}/> },
-          { key:'players',   label:'Players',   icon: <UserCircle2  size={13}/> },
-        ] as const).map(({ key, label, icon }) => (
-          <button
-            key={key}
-            onClick={() => { setTournamentTab(key); setTournamentOpen(true); }}
-            style={{ ...btnGhost, gap:6, padding:'7px 13px', ...(tournamentOpen && tournamentTab===key ? { background:'rgba(59,130,246,0.15)', borderColor:'rgba(59,130,246,0.35)', color:'#93c5fd' } : {}) }}
-            aria-label={`View ${label}`}
-          >
-            {icon}
-            <span style={{ fontSize:12 }}>{label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* ── TOURNAMENT PREVIEW CARD (portal-style, shows on tap) ──────── */}
-      {tournamentOpen && (
-        <div style={{ position:'relative' }}>
-          <TournamentWidget tab={tournamentTab} onClose={() => setTournamentOpen(false)} />
         </div>
       )}
 
