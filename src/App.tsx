@@ -2,161 +2,178 @@ import React, { useState, useEffect } from 'react';
 import { seedInitialDataIfEmpty } from './lib/firebase';
 import FanView from './components/FanView';
 import OpsDashboard from './components/OpsDashboard';
-import { 
-  ShieldAlert, 
-  MapPin, 
-  Sparkles, 
-  CheckCircle, 
-  AlertCircle,
-  Accessibility,
-  Menu,
-  X,
-  Volume2
-} from 'lucide-react';
+import { MapPin, Menu, X, Shield, Users } from 'lucide-react';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'fan' | 'ops'>('fan');
   const [accessibilityMode, setAccessibilityMode] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-  // 1. Seed default crowd density and shuttle statuses in Firestore on initial load
   useEffect(() => {
     seedInitialDataIfEmpty();
   }, []);
 
-  // Update root contrast colors based on accessibility mode
-  const appBg = accessibilityMode 
-    ? 'bg-black text-white min-h-screen' 
-    : 'bg-[#02040a] text-slate-100 min-h-screen selection:bg-blue-500 selection:text-white';
-
-  const navClasses = accessibilityMode
-    ? 'bg-black border-b-4 border-white py-4 px-6 sticky top-0 z-50'
-    : 'bg-[#050816]/80 backdrop-blur-xl border-b border-slate-800 py-3.5 px-6 sticky top-0 z-50';
-
-  const navLinkActive = accessibilityMode
-    ? 'bg-white text-black border-2 border-black font-black px-4 py-1.5 text-xs uppercase tracking-widest'
-    : 'px-4 py-1.5 rounded-full bg-blue-600 text-xs font-bold uppercase tracking-widest text-slate-100 transition-all';
-
-  const navLinkInactive = accessibilityMode
-    ? 'text-white border-2 border-transparent font-bold px-4 py-1.5 text-xs uppercase tracking-widest hover:border-white'
-    : 'px-4 py-1.5 rounded-full text-slate-500 text-xs font-bold uppercase tracking-widest hover:text-slate-300 transition-all';
+  // Apply a11y class on root so CSS cascade overrides work
+  useEffect(() => {
+    document.documentElement.classList.toggle('a11y', accessibilityMode);
+  }, [accessibilityMode]);
 
   return (
-    <div className={appBg}>
-      {/* HEADER NAV */}
-      <nav className={navClasses} role="navigation" aria-label="Main Navigation">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          
-          {/* Logo Brand */}
-          <div className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${accessibilityMode ? 'bg-white text-black' : 'bg-gradient-to-tr from-emerald-400 to-blue-500 text-black'}`}>
-              S
-            </div>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+
+      {/* ── NAV ─────────────────────────────────────────────────────────── */}
+      <nav
+        role="navigation"
+        aria-label="Main Navigation"
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(8,12,20,0.85)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+        }}
+      >
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+          {/* Brand */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: 10,
+              background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: 900, fontSize: 14, color: '#fff', letterSpacing: '-0.5px',
+              flexShrink: 0,
+            }}>SP</div>
             <div>
-              <span className={`tracking-tighter font-sans font-black uppercase italic ${accessibilityMode ? 'text-2xl text-white' : 'text-xl text-slate-100'}`}>
-                STADIUM<span className="text-emerald-400">PULSE</span> AI
-              </span>
-              <p className="text-[10px] text-slate-400 font-mono tracking-widest uppercase">FIFA World Cup 2026 Smart Stadium</p>
+              <div style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.3px', color: '#f1f5f9' }}>
+                Stadium<span style={{ color: '#3b82f6' }}>Pulse</span> <span style={{ color: 'rgba(255,255,255,0.35)' }}>AI</span>
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 1 }}>
+                FIFA World Cup 2026
+              </div>
             </div>
           </div>
 
-          {/* Desktop Navigation Links & Live Status */}
-          <div className="hidden md:flex items-center gap-6">
-            <div className="flex bg-slate-900 rounded-full p-1 border border-slate-800" role="menubar">
-              <button
-                onClick={() => { setCurrentView('fan'); }}
-                className={currentView === 'fan' ? navLinkActive : navLinkInactive}
-                role="menuitem"
-                aria-label="Switch to Public Fan Companion View"
-              >
-                Fan View
-              </button>
-              <button
-                onClick={() => { setCurrentView('ops'); }}
-                className={currentView === 'ops' ? navLinkActive : navLinkInactive}
-                role="menuitem"
-                aria-label="Switch to Secure Stadium Operations Hub"
-              >
-                Ops Mode
-              </button>
+          {/* Desktop nav */}
+          <div className="hidden md:flex" style={{ alignItems: 'center', gap: 24 }}>
+            {/* View switcher pill */}
+            <div style={{
+              display: 'flex',
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 99,
+              padding: 3,
+              gap: 2,
+            }} role="menubar">
+              {([
+                { key: 'fan', label: 'Fan View', icon: <Users size={13} /> },
+                { key: 'ops', label: 'Ops Hub', icon: <Shield size={13} /> },
+              ] as const).map(({ key, label, icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setCurrentView(key)}
+                  role="menuitem"
+                  aria-label={`Switch to ${label}`}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    padding: '6px 14px',
+                    borderRadius: 99,
+                    fontSize: 12, fontWeight: 600,
+                    cursor: 'pointer',
+                    border: 'none',
+                    transition: 'all 0.15s',
+                    background: currentView === key ? '#3b82f6' : 'transparent',
+                    color: currentView === key ? '#fff' : 'rgba(255,255,255,0.4)',
+                  }}
+                >
+                  {icon}
+                  {label}
+                </button>
+              ))}
             </div>
-            <div className="flex items-center gap-3 text-xs font-semibold font-mono text-slate-400 tracking-wider">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              LIVE: MIAMI GARDENS STADIUM
+
+            {/* Live indicator */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>
+              <span className="dot-live" />
+              MIAMI GARDENS • LIVE
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-slate-400 hover:text-white focus:outline-none"
+            className="md:hidden btn-icon"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
         </div>
 
-        {/* Mobile Navigation Dropdown */}
+        {/* Mobile dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-3 pt-3 border-t border-slate-800 flex flex-col gap-2">
-            <button
-              onClick={() => { setCurrentView('fan'); setMobileMenuOpen(false); }}
-              className={`text-left w-full ${currentView === 'fan' ? navLinkActive : navLinkInactive}`}
-            >
-              Public Fan View
-            </button>
-            <button
-              onClick={() => { setCurrentView('ops'); setMobileMenuOpen(false); }}
-              className={`text-left w-full ${currentView === 'ops' ? navLinkActive : navLinkInactive}`}
-            >
-              Staff Operations Hub
-            </button>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: '12px 24px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {[
+              { key: 'fan' as const, label: 'Fan View' },
+              { key: 'ops' as const, label: 'Ops Hub' },
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => { setCurrentView(key); setMobileMenuOpen(false); }}
+                style={{
+                  textAlign: 'left', padding: '10px 14px', borderRadius: 10,
+                  fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
+                  background: currentView === key ? '#3b82f6' : 'rgba(255,255,255,0.05)',
+                  color: currentView === key ? '#fff' : 'rgba(255,255,255,0.6)',
+                }}
+              >{label}</button>
+            ))}
           </div>
         )}
       </nav>
 
-      {/* CORE VIEW BODY */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        
-        {/* LANDING WORLD CUP FLAG CONTEXT */}
-        <div className="mb-4 flex items-center justify-between gap-3 text-xs text-slate-400 border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-1.5 font-mono">
-            <MapPin className="w-4 h-4 text-blue-500" />
-            <span>VENUE: FIFA WORLD CUP AZTECA/METLIFE STADIUM (MOCK)</span>
+      {/* ── BREADCRUMB STRIP ────────────────────────────────────────────── */}
+      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '8px 24px' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>
+            <MapPin size={12} style={{ color: '#3b82f6' }} />
+            VENUE: FIFA WC 2026 — AZTECA / METLIFE (MOCK)
           </div>
-          <div className="font-mono">
-            MATCHDAY LIVE: JULY 2026
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>
+            MATCHDAY · JULY 2026
           </div>
         </div>
+      </div>
 
-        {/* Dynamic routing */}
+      {/* ── MAIN CONTENT ────────────────────────────────────────────────── */}
+      <div style={{ flex: 1, maxWidth: 1280, margin: '0 auto', width: '100%', padding: '24px 24px' }}>
         {currentView === 'fan' ? (
-          <FanView 
-            accessibilityMode={accessibilityMode}
-            setAccessibilityMode={setAccessibilityMode}
-          />
+          <FanView accessibilityMode={accessibilityMode} setAccessibilityMode={setAccessibilityMode} />
         ) : (
-          <OpsDashboard 
-            accessibilityMode={accessibilityMode}
-          />
+          <OpsDashboard accessibilityMode={accessibilityMode} />
         )}
       </div>
 
-      {/* FOOTER ACCESSIBILITY STRIP */}
-      <footer className="mt-12 bg-slate-900 border-t border-slate-800 py-4 px-6 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono shrink-0">
-        <div className="flex gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-3.5 h-3.5 rounded-full border-2 border-slate-600"></div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">High Contrast</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3.5 h-3.5 rounded bg-slate-600"></div>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Screen Reader Ready</span>
-          </div>
+      {/* ── FOOTER ──────────────────────────────────────────────────────── */}
+      <footer style={{
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+        padding: '16px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 12,
+      }}>
+        <div style={{ display: 'flex', gap: 20 }}>
+          {['WCAG 2.1 AA', 'Screen Reader Ready', 'Keyboard Nav'].map(tag => (
+            <span key={tag} style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              {tag}
+            </span>
+          ))}
         </div>
-        <div className="text-[10px] text-slate-500 font-medium text-center md:text-right">
-          FIFA WORLD CUP 2026 SMART COMPANION • VERSION 4.0.2-STABLE
-          <p className="text-[9px] text-slate-600 mt-0.5">Secure Firestore DB • server-side Gemini API verification</p>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', fontFamily: 'monospace', textAlign: 'right' }}>
+          STADIUMPULSE AI · v4.0 · Gemini + Firestore + Firebase Auth
         </div>
       </footer>
     </div>
