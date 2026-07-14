@@ -90,7 +90,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
   useEffect(() => {
     if (accessibilityMode) return;
     const interval = setInterval(() => {
-      setHeroSlide((prev) => (prev + 1) % 4);
+      setHeroSlide((prev) => (prev + 1) % 3);
     }, 7000);
     return () => clearInterval(interval);
   }, [accessibilityMode]);
@@ -475,6 +475,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
             {
               id: 0,
               image: "/images/messi_kissing_trophy_1783343437487.jpg",
+              imgPosition: "object-center",
               match: "ARG vs POR • STADIUM FEED",
               score: "2 - 1",
               time: "78' SEC HALF",
@@ -486,31 +487,22 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
             },
             {
               id: 1,
-              image: "/images/ronaldo_sitting_despair_1783343459849.jpg",
-              match: "POR vs FRA • REPLAY RECAP",
-              score: "0 - 0",
-              time: "EXTRA TIME",
-              teamA: "POR",
+              image: "/images/messi_wc_kiss_1783341826301.jpg",
+              imgPosition: "object-top",
+              match: "ARG vs FRA • WC FINAL 2022",
+              score: "3 - 3",
+              time: "FULL TIME (PENS)",
+              teamA: "ARG",
               teamB: "FRA",
-              flagA: "🇵🇹",
+              flagA: "🇦🇷",
               flagB: "🇫🇷",
-              color: "from-red-600/10"
+              color: "from-sky-600/10"
             },
             {
               id: 2,
-              image: "/images/ronaldo_tunnel_crying_1783343479370.jpg",
-              match: "POR vs MAR • HISTORIC TUNNEL",
-              score: "0 - 1",
-              time: "FULL TIME",
-              teamA: "POR",
-              teamB: "MAR",
-              flagA: "🇵🇹",
-              flagB: "🇲🇦",
-              color: "from-purple-600/10"
-            },
-            {
-              id: 3,
               image: "/images/neymar_brazil_focus_1783343496361.jpg",
+              // shift to top so Neymar's face is visible instead of his chest
+              imgPosition: "object-top",
               match: "BRA vs GER • LIVE",
               score: "1 - 1",
               time: "34' FIRST HALF",
@@ -532,7 +524,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
                 <img 
                   src={slide.image} 
                   alt="World Cup moment" 
-                  className={`w-full h-full object-cover object-center transition-transform duration-[7000ms] ease-out ${
+                  className={`w-full h-full object-cover ${slide.imgPosition} transition-transform duration-[7000ms] ease-out ${
                     heroSlide === idx ? "scale-105 opacity-100" : "scale-100 opacity-80"
                   }`}
                   referrerPolicy="no-referrer"
@@ -574,7 +566,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           {/* DOTS CONTROLS */}
           <div className="relative z-10 flex items-center justify-between gap-4 border-t border-slate-800/40 pt-4 mt-auto">
             <div className="flex gap-2">
-              {[0, 1, 2, 3].map((idx) => (
+              {[0, 1, 2].map((idx) => (
                 <button
                   key={idx}
                   onClick={() => setHeroSlide(idx)}

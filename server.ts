@@ -11,9 +11,13 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 // Enable JSON parse with standard limit to prevent oversized payloads
 app.use(express.json({ limit: '10mb' }));
 
-// Set CORS policy - only allow app origin, enforce HTTPS-like headers in production
+// Set CORS policy - lock to APP_URL in production, open in development
+const allowedOrigin = process.env.NODE_ENV === 'production'
+  ? (process.env.APP_URL || false)   // false = block all if APP_URL not set
+  : true;                            // allow any origin in local dev
+
 app.use(cors({
-  origin: true, // Allow current origin (dynamic for AI Studio iframe environment)
+  origin: allowedOrigin,
   methods: ['GET', 'POST'],
   credentials: true
 }));
@@ -514,3 +518,6 @@ const setupServerAndVite = async () => {
 };
 
 setupServerAndVite();
+
+// Export the Express app for Vercel's serverless handler (api/index.js)
+export { app };

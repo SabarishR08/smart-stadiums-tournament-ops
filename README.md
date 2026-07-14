@@ -69,16 +69,95 @@ npm run test
 
 ### Local Development Setup:
 1. Clone the project or use the AI Studio workspace.
-2. Populate `.env` with a valid `GEMINI_API_KEY`.
+2. Copy `.env.example` to `.env` and fill in all values (see Environment Variables below).
 3. Install dependencies:
    ```bash
    npm install
    ```
-4. Boot development mode:
+4. Boot development mode (Express backend + Vite frontend, proxied automatically):
    ```bash
    npm run dev
    ```
-5. Execute production builds:
+5. Execute a production build:
    ```bash
    npm run build
    ```
+6. Run the production build locally:
+   ```bash
+   npm start
+   ```
+
+---
+
+## 🌍 Deployment
+
+### Environment Variables
+
+Copy `.env.example` to `.env` (local) or paste the values into your host's dashboard. All variables are required unless marked optional.
+
+| Variable | Where to get it | Notes |
+|---|---|---|
+| `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/app/apikey) | Server-side only, never exposed to browser |
+| `APP_URL` | Your deployed domain, e.g. `https://stadiumpulse.onrender.com` | Used to lock CORS in production |
+| `VITE_FIREBASE_API_KEY` | Firebase Console → Project Settings → Your Apps | Embedded in frontend bundle |
+| `VITE_FIREBASE_AUTH_DOMAIN` | Same as above | |
+| `VITE_FIREBASE_PROJECT_ID` | Same as above | |
+| `VITE_FIREBASE_STORAGE_BUCKET` | Same as above | |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Same as above | |
+| `VITE_FIREBASE_APP_ID` | Same as above | |
+| `VITE_FIREBASE_DATABASE_ID` | Firebase Console → Firestore | Optional — leave blank to use the `(default)` database |
+
+> **Important:** All `VITE_*` variables are baked into the JS bundle at build time. They are intentionally public (Firebase client config is safe to expose). `GEMINI_API_KEY` must never be set as a `VITE_` variable.
+
+---
+
+### Deploy to Render (recommended)
+
+Render runs the full Express + static-file server in one service, which matches the app's architecture exactly.
+
+1. Push the repo to GitHub.
+2. Go to [Render Dashboard](https://dashboard.render.com) → **New → Web Service**.
+3. Connect your GitHub repo.
+4. Render auto-detects `render.yaml` — review it and click **Apply**.
+5. Go to **Environment** tab and add every secret variable from the table above.
+   - Render automatically sets `APP_URL` from the service's public hostname via `render.yaml`.
+6. Click **Deploy**. Build runs `npm install && npm run build`, start runs `npm start`.
+7. Once live, open `https://<your-service>.onrender.com/api/health` — you should see `{"status":"ok","geminiConfigured":true}`.
+
+> **Free tier note:** Render free services spin down after 15 minutes of inactivity. The first request after a spin-down takes ~30 seconds to cold-start. Upgrade to a paid plan to avoid this.
+
+---
+
+### Deploy to Vercel
+
+Vercel is primarily a frontend platform, so the Express routes are wrapped in a serverless function via `api/index.js`.
+
+> **Prerequisites:** Run `npm run build` locally or let Vercel run it. The file `dist/server.cjs` must exist before `api/index.js` can load it.
+
+1. Push the repo to GitHub.
+2. Go to [Vercel Dashboard](https://vercel.com/new) → Import your repo.
+3. Framework Preset: **Other** (leave as-is — `vercel.json` handles the config).
+4. Add all environment variables from the table above in **Settings → Environment Variables**.
+   - Set `APP_URL` to `https://<your-project>.vercel.app`.
+5. Click **Deploy**.
+6. Verify: `https://<your-project>.vercel.app/api/health`
+
+> **Limitation:** Vercel's serverless functions have a 10 s default timeout on the Hobby plan. Gemini Vision calls on large images can exceed this. Use the Pro plan or prefer Render for production workloads.
+
+---
+
+### Firestore Setup (both platforms)
+
+Before the first deploy, make sure Firestore is ready:
+
+1. In [Firebase Console](https://console.firebase.google.com), create a Firestore database (Start in **production mode**).
+2. Deploy the security rules:
+   ```bash
+   # Install Firebase CLI if needed
+   npm install -g firebase-tools
+   firebase login
+   firebase deploy --only firestore:rules
+   ```
+3. Enable **Email/Password** sign-in under Authentication → Sign-in method.
+4. The app seeds initial crowd and transport data automatically on first load.
+

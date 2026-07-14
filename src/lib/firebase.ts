@@ -24,7 +24,6 @@ import {
 } from 'firebase/firestore';
 import { ZoneStatus, TransportationStatus } from '../types';
 
-// Inlined from firebase-applet-config.json for maximum reliability
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -37,8 +36,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firestore specifying the databaseId from our config
-export const db = getFirestore(app, "ai-studio-605ea102-90d9-41ca-940e-737ad40bc9d4");
+// Use VITE_FIREBASE_DATABASE_ID if set (non-default Firestore database),
+// otherwise fall back to the default database.
+const databaseId = import.meta.env.VITE_FIREBASE_DATABASE_ID || undefined;
+export const db = databaseId ? getFirestore(app, databaseId) : getFirestore(app);
 export const auth = getAuth(app);
 
 /**
