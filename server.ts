@@ -16,7 +16,9 @@ const CORS_WHITELIST = [
   /localhost:\d+$/,
   /\.run\.app$/,
   /\.google\.com$/,
-  /\.google-aistudio\.com$/
+  /\.google-aistudio\.com$/,
+  /\.onrender\.com$/,
+  /\.render\.com$/
 ];
 
 app.use(cors({
