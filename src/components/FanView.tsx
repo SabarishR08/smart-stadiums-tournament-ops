@@ -677,53 +677,55 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
               <span>Wayfinding & Gate Locator</span>
             </h2>
 
-            {/* Stadium Map rendering */}
-            <div className="mb-4">
-              <MapSVG 
-                selectedSection={selectedSection}
-                onSectionSelect={handleMapSectionClick}
-              />
-            </div>
+            {/* Stadium Map rendering - Scrollable container */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-4">
+              <div>
+                <MapSVG 
+                  selectedSection={selectedSection}
+                  onSectionSelect={handleMapSectionClick}
+                />
+              </div>
 
-            {/* Selected Wayfinding Info */}
-            <div className={`p-4 rounded-xl ${accessibilityMode ? 'border-2 border-white' : 'bg-zinc-950/30 backdrop-blur-md border border-zinc-800/50'}`}>
-              {selectedWayfinding ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2">
-                    <span className={`font-bold ${accessibilityMode ? 'text-xl' : 'text-base text-white'}`}>
-                      Section {selectedWayfinding.section} Selected
-                    </span>
-                    <span className="text-xs bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 px-2.5 py-0.5 rounded-full font-semibold">
-                      Fastest Path
-                    </span>
+              {/* Selected Wayfinding Info */}
+              <div className={`p-4 rounded-xl ${accessibilityMode ? 'border-2 border-white' : 'bg-zinc-950/30 backdrop-blur-md border border-zinc-800/50'}`}>
+                {selectedWayfinding ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2">
+                      <span className={`font-bold ${accessibilityMode ? 'text-xl' : 'text-base text-white'}`}>
+                        Section {selectedWayfinding.section} Selected
+                      </span>
+                      <span className="text-xs bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 px-2.5 py-0.5 rounded-full font-semibold">
+                        Fastest Path
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <p className={labelSize}>Nearest Gate</p>
+                        <p className={`font-semibold ${accessibilityMode ? 'text-lg' : 'text-slate-200'}`}>
+                          {selectedWayfinding.nearestGate}
+                        </p>
+                      </div>
+                      <div>
+                        <p className={labelSize}>Nearest Restroom</p>
+                        <p className={`font-semibold ${accessibilityMode ? 'text-lg' : 'text-slate-200'}`}>
+                          {selectedWayfinding.nearestRestroom}
+                        </p>
+                      </div>
+                      <div>
+                        <p className={labelSize}>ADA Entrance</p>
+                        <p className={`font-semibold ${accessibilityMode ? 'text-lg' : 'text-slate-200'}`}>
+                          {selectedWayfinding.accessibleEntrance}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                    <div>
-                      <p className={labelSize}>Nearest Gate</p>
-                      <p className={`font-semibold ${accessibilityMode ? 'text-lg' : 'text-slate-200'}`}>
-                        {selectedWayfinding.nearestGate}
-                      </p>
-                    </div>
-                    <div>
-                      <p className={labelSize}>Nearest Restroom</p>
-                      <p className={`font-semibold ${accessibilityMode ? 'text-lg' : 'text-slate-200'}`}>
-                        {selectedWayfinding.nearestRestroom}
-                      </p>
-                    </div>
-                    <div>
-                      <p className={labelSize}>ADA Entrance</p>
-                      <p className={`font-semibold ${accessibilityMode ? 'text-lg' : 'text-slate-200'}`}>
-                        {selectedWayfinding.accessibleEntrance}
-                      </p>
-                    </div>
+                ) : (
+                  <div className="text-center py-2 text-slate-400 text-xs flex flex-col items-center gap-1">
+                    <HelpCircle className="w-4 h-4 text-slate-500" />
+                    <p>Tap any section on the stadium circle map above to inspect route exits & services instantly.</p>
                   </div>
-                </div>
-              ) : (
-                <div className="text-center py-2 text-slate-400 text-xs flex flex-col items-center gap-1">
-                  <HelpCircle className="w-4 h-4 text-slate-500" />
-                  <p>Tap any section on the stadium circle map above to inspect route exits & services instantly.</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </section>
 
