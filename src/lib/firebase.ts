@@ -23,13 +23,24 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { ZoneStatus, TransportationStatus } from '../types';
-import firebaseConfig from '../../firebase-applet-config.json';
+
+// Firebase configuration from environment variables
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDL9P1r37CQxqVjGb7DHTbWKZ2UzrZ-mQ0",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "gen-lang-client-0639363380.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "gen-lang-client-0639363380",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "gen-lang-client-0639363380.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "139690074983",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:139690074983:web:48da630f90897f104905c2"
+};
+
+const firestoreDatabaseId = import.meta.env.VITE_FIRESTORE_DATABASE_ID || "ai-studio-605ea102-90d9-41ca-940e-737ad40bc9d4";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firestore specifying the databaseId from our config
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+export const db = getFirestore(app, firestoreDatabaseId);
 export const auth = getAuth(app);
 
 export enum OperationType {

@@ -15,7 +15,8 @@ RUN echo "VITE_FIREBASE_API_KEY=AIzaSyDL9P1r37CQxqVjGb7DHTbWKZ2UzrZ-mQ0" > .env.
     echo "VITE_FIREBASE_PROJECT_ID=gen-lang-client-0639363380" >> .env.production && \
     echo "VITE_FIREBASE_STORAGE_BUCKET=gen-lang-client-0639363380.firebasestorage.app" >> .env.production && \
     echo "VITE_FIREBASE_MESSAGING_SENDER_ID=139690074983" >> .env.production && \
-    echo "VITE_FIREBASE_APP_ID=1:139690074983:web:48da630f90897f104905c2" >> .env.production
+    echo "VITE_FIREBASE_APP_ID=1:139690074983:web:48da630f90897f104905c2" >> .env.production && \
+    echo "VITE_FIRESTORE_DATABASE_ID=ai-studio-605ea102-90d9-41ca-940e-737ad40bc9d4" >> .env.production
 
 RUN npm run build
 
