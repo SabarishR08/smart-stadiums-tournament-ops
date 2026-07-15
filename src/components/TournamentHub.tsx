@@ -114,15 +114,21 @@ interface PlayerStat {
   country: string;
   value: number;
   photo?: string;
+  isGoat?: boolean;
 }
 
 const PLAYER_STATS_DATA = {
   goals: [
-    { rank: 1, name: "Kylian Mbappé", country: "France", value: 6, photo: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=120&h=120&q=80" },
-    { rank: 2, name: "Lionel Messi", country: "Argentina", value: 5, photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=80" },
-    { rank: 3, name: "Erling Haaland", country: "Norway", value: 5, photo: erlingHaalandPhoto },
-    { rank: 4, name: "Harry Kane", country: "England", value: 4, photo: harryKanePhoto },
-    { rank: 5, name: "Vinícius Júnior", country: "Brazil", value: 3 }
+    { rank: 1, name: "Lionel Messi", country: "Argentina", value: 8, photo: "/players/liomessi.png", isGoat: true },
+    { rank: 2, name: "Kylian Mbappé", country: "France", value: 8, photo: "/players/mbappe.png" },
+    { rank: 3, name: "Erling Haaland", country: "Norway", value: 7, photo: "/players/erling_haaland.jpg" },
+    { rank: 4, name: "Harry Kane", country: "England", value: 6, photo: "/players/harry_kane.png" },
+    { rank: 5, name: "Jude Bellingham", country: "England", value: 6, photo: "/players/jude_bellingham.png" },
+    { rank: 6, name: "Ousmane Dembélé", country: "France", value: 5, photo: "/players/ousmane_dembele.png" },
+    { rank: 7, name: "Ismaila Sarr", country: "Senegal", value: 4, photo: "/players/ismaila_sarr.png" },
+    { rank: 8, name: "Julian Álvarez", country: "Mexico", value: 4, photo: "/players/julian_alvarez.jpg" },
+    { rank: 9, name: "Mikel Oyarzabal", country: "Spain", value: 4, photo: "/players/mikel_oyarzabal.jpg" },
+    { rank: 10, name: "Vinícius Júnior", country: "Brazil", value: 4, photo: "/players/vinicius_jr.jpg" }
   ] as PlayerStat[],
   assists: [
     { rank: 1, name: "Lionel Messi", country: "Argentina", value: 4, photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=80" },
@@ -1206,7 +1212,10 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
                         </div>
                         
                         <div className="space-y-0.5">
-                          <h4 className="text-xs font-black text-white">{player.name}</h4>
+                          <h4 className="text-xs font-black text-white flex items-center gap-1.5">
+                            <span>{player.name}</span>
+                            {player.isGoat && <span className="text-sm" title="GOAT">🐐</span>}
+                          </h4>
                           <div className="flex items-center gap-1.5 text-[10px] text-zinc-400">
                             {renderFlag(player.country)}
                             <span>{player.country}</span>
