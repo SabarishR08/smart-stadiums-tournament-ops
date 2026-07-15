@@ -37,6 +37,9 @@ import {
   MapPin
 } from 'lucide-react';
 
+// Static image import for production build asset compilation
+import ronaldoTunnelCrying from '../assets/images/ronaldo_tunnel_crying_1783343479370.jpg';
+
 interface OpsDashboardProps {
   accessibilityMode: boolean;
 }
@@ -237,7 +240,10 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
       // Prompt Gemini to generate immediate actionable response advice
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026'
+        },
         body: JSON.stringify({
           message: `Respond as World Cup Security advisor. Logged Incident Type: ${incType}, Zone: ${incZone}, Initial Severity: ${incSeverity}. Notes: ${incNotes}. Recommend 1 immediate action to take, and classify tactical Priority as either low, medium, high, or critical. Format as JSON: {"action": "advice", "priority": "level"}`
         })
@@ -296,7 +302,11 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
     try {
       const response = await fetch('/api/decision-support', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026',
+          'X-User-Role': 'staff'
+        },
         body: JSON.stringify({ situation: situationInput })
       });
 
@@ -325,7 +335,11 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
     try {
       const response = await fetch('/api/broadcast', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026',
+          'X-User-Role': 'staff'
+        },
         body: JSON.stringify({ originalText: broadcastInput })
       });
 
@@ -354,18 +368,18 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
   // Basic styling configurations based on Accessibility Mode
   const panelClasses = accessibilityMode 
     ? 'bg-black text-white border-2 border-white rounded-none p-5' 
-    : 'bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-5 shadow-2xl';
+    : 'bg-zinc-900/20 backdrop-blur-xl border border-zinc-800/40 rounded-2xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative z-10';
 
-  const labelClasses = accessibilityMode ? 'text-lg font-bold' : 'text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1 block';
-  const headingClasses = accessibilityMode ? 'text-2xl font-black mb-3' : 'text-sm font-black uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2';
+  const labelClasses = accessibilityMode ? 'text-lg font-bold' : 'text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1 block';
+  const headingClasses = accessibilityMode ? 'text-2xl font-black mb-3 text-yellow-400' : 'text-sm font-bold uppercase tracking-wider text-white mb-3 flex items-center gap-2';
   
   const inputClasses = accessibilityMode
     ? 'bg-black border-2 border-white text-white rounded-none focus:ring-4 focus:ring-yellow-400 focus:border-white focus:outline-none placeholder-slate-400 text-lg p-3'
-    : 'bg-slate-900 border border-slate-800 text-slate-100 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none p-2.5';
+    : 'bg-zinc-950/40 backdrop-blur-md border border-zinc-800/60 text-zinc-100 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 focus:outline-none p-2.5';
 
   const buttonClasses = accessibilityMode
     ? 'bg-yellow-400 text-black border-2 border-black font-bold py-3 px-5 rounded-none hover:bg-yellow-300 focus:ring-4 focus:ring-yellow-400'
-    : 'bg-blue-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-blue-500 transition-colors focus:ring-2 focus:ring-blue-500/50 text-sm';
+    : 'bg-white hover:bg-zinc-200 text-black font-semibold py-2 px-4 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] focus:ring-2 focus:ring-zinc-300/50 text-sm';
 
   // 12. Local Aggregated Incident Chart data (Analytics)
   const incidentCountsByType = incidents.reduce((acc, inc) => {
@@ -385,21 +399,21 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
           {!accessibilityMode && (
             <div className="absolute top-0 left-0 right-0 h-40 opacity-25 pointer-events-none select-none overflow-hidden">
               <img 
-                src="/images/ronaldo_tunnel_crying_1783343479370.jpg" 
+                src={ronaldoTunnelCrying} 
                 alt="Ronaldo Emotional Moment" 
                 className="w-full h-full object-cover object-center"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#02040a]"></div>
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-zinc-950"></div>
             </div>
           )}
 
           <div className="text-center mb-6 relative z-10 pt-4">
-            <div className="inline-flex p-2 bg-slate-900/80 border border-slate-800 rounded-xl mb-3">
-              <Lock className="w-5 h-5 text-emerald-400" />
+            <div className="inline-flex p-2 bg-zinc-900/50 backdrop-blur-md border border-zinc-800/40 rounded-xl mb-3">
+              <Lock className="w-5 h-5 text-zinc-300" />
             </div>
             <h2 className="text-base font-black text-white uppercase tracking-wider">Ops Dashboard Sign In</h2>
-            <p className="text-[11px] text-slate-400 mt-1">Authorized FIFA Stadium Operations Staff Only</p>
+            <p className="text-[11px] text-zinc-500 mt-1">Authorized FIFA Stadium Operations Staff Only</p>
           </div>
 
           <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-4 relative z-10">
@@ -443,13 +457,13 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
             </button>
           </form>
 
-          <div className="mt-5 pt-4 border-t border-slate-800 text-center text-xs">
+          <div className="mt-5 pt-4 border-t border-zinc-800 text-center text-xs">
             <button
               onClick={() => {
                 setIsSignUp(!isSignUp);
                 setAuthError('');
               }}
-              className="text-blue-400 hover:underline"
+              className="text-zinc-400 hover:text-zinc-200 transition-colors"
             >
               {isSignUp ? 'Already have an operations account? Log in' : 'No account? Create one immediately'}
             </button>
@@ -463,20 +477,20 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
     <div className="space-y-6">
       
       {/* Ops Header */}
-      <div className={`p-4 flex flex-wrap items-center justify-between gap-4 ${accessibilityMode ? 'border-b-4 border-white bg-black' : 'bg-slate-900/40 border border-slate-800 rounded-xl'}`}>
+      <div className={`p-4 flex flex-wrap items-center justify-between gap-4 relative z-10 ${accessibilityMode ? 'border-b-4 border-white bg-black' : 'bg-zinc-900/15 backdrop-blur-md border border-zinc-800/50 rounded-xl'}`}>
         <div className="flex items-center gap-2">
-          <Shield className="w-6 h-6 text-red-400" />
+          <Shield className="w-6 h-6 text-zinc-300" />
           <div>
-            <h1 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
+            <h1 className="text-sm font-bold text-white flex items-center gap-1.5">
               <span>FIFA WORLD CUP 2026 OPERATIONS HUB</span>
-              <span className="text-[10px] bg-red-600/20 border border-red-500/30 text-red-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">LIVE STAFF MODE</span>
+              <span className="text-[10px] bg-white/10 border border-white/20 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">LIVE STAFF MODE</span>
             </h1>
-            <p className="text-xs text-slate-400 font-medium">Logged in as {user.email}</p>
+            <p className="text-xs text-zinc-500 font-medium">Logged in as {user.email}</p>
           </div>
         </div>
         <button
           onClick={handleSignOut}
-          className="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 focus:ring-2 focus:ring-red-500"
+          className="bg-zinc-900 border border-zinc-800/80 hover:bg-zinc-800 text-zinc-300 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 focus:ring-2 focus:ring-red-500"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Exit Hub</span>

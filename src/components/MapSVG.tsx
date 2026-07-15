@@ -37,6 +37,8 @@ export const WAYFINDING_DATA: { [key: string]: WayfindingInfo } = {
 };
 
 export default function MapSVG({ onSectionSelect, selectedSection }: MapSVGProps) {
+  const [showHeatmap, setShowHeatmap] = useState<boolean>(true);
+  
   // We lay out 26 sections in an oval stadium ring shape
   const sections = Object.keys(WAYFINDING_DATA);
   const cx = 150;
@@ -44,12 +46,51 @@ export default function MapSVG({ onSectionSelect, selectedSection }: MapSVGProps
   const rx = 110;
   const ry = 70;
 
+  // Render Section Color based on heat levels
+  const getSectionColor = (sec: string, isSelected: boolean) => {
+    if (isSelected) {
+      return { fill: '#ffffff', stroke: '#ffffff', text: '#09090b' }; // Premium White selection with dark text
+    }
+    if (!showHeatmap) {
+      return { fill: 'rgba(255, 255, 255, 0.03)', stroke: 'rgba(255, 255, 255, 0.12)', text: '#a1a1aa' }; // Default elegant wireframe
+    }
+
+    // Interactive Heat levels
+    const highDensitySecs = ['E', 'F', 'G', 'H', 'I', 'J', 'K']; // Near crowded Gate B
+    const mediumDensitySecs = ['C', 'D', 'A', 'B', 'Y', 'Z'];    // Moderate Gate A
+    
+    if (highDensitySecs.includes(sec)) {
+      return { fill: 'rgba(239, 68, 68, 0.15)', stroke: '#ef4444', text: '#fca5a5' }; // High Congestion Red
+    }
+    if (mediumDensitySecs.includes(sec)) {
+      return { fill: 'rgba(245, 158, 11, 0.15)', stroke: '#f59e0b', text: '#fcd34d' }; // Moderate Congestion Amber
+    }
+    return { fill: 'rgba(34, 197, 94, 0.1)', stroke: '#22c55e', text: '#86efac' }; // Free-Flowing Green
+  };
+
   return (
-    <div className="w-full relative overflow-hidden bg-slate-900/30 border border-slate-800 rounded-3xl p-4 flex flex-col items-center">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent pointer-events-none"></div>
-      <div className="text-center mb-3 relative z-10">
-        <p className="text-sm font-bold text-slate-100 uppercase tracking-wider">FIFA World Cup 2026 Interactive Stadium Map</p>
-        <p className="text-[11px] text-slate-400 mt-0.5">Select any section (A-Z) to inspect wayfinding routes and amenities</p>
+    <div className="w-full relative overflow-hidden bg-zinc-900/20 backdrop-blur-md border border-zinc-800/40 rounded-3xl p-4 flex flex-col items-center">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-500/5 via-transparent to-transparent pointer-events-none"></div>
+      
+      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-4 relative z-10 border-b border-zinc-900/60 pb-3">
+        <div className="text-center sm:text-left">
+          <p className="text-xs font-black text-white uppercase tracking-widest flex items-center gap-1.5 justify-center sm:justify-start">
+            <span className="w-2 h-2 rounded-full bg-zinc-300 animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.5)]"></span>
+            StadiumPulse AI Heatmap
+          </p>
+          <p className="text-[10px] text-zinc-500 mt-0.5">Select a section to inspect wayfinding routes and live operations</p>
+        </div>
+        <button
+          onClick={() => setShowHeatmap(!showHeatmap)}
+          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border ${
+            showHeatmap 
+              ? 'bg-white border-zinc-200 text-black shadow-md' 
+              : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-400'
+          }`}
+          aria-label="Toggle AI Crowd Congestion Heatmap Overlay"
+        >
+          Heatmap Overlay: {showHeatmap ? 'ACTIVE' : 'MUTED'}
+        </button>
       </div>
 
       <div className="relative w-full max-w-[400px] aspect-[3/2] flex justify-center">
@@ -59,46 +100,46 @@ export default function MapSVG({ onSectionSelect, selectedSection }: MapSVGProps
           aria-label="Stadium sections grid map. A-Z section blocks arranged in an oval ring around the central pitch."
           role="img"
         >
-          {/* Central Pitch / Field */}
+          {/* Central Pitch / Field - Premium Transparent Wireframe Blueprint */}
           <rect 
             x="90" 
             y="65" 
             width="120" 
             height="70" 
             rx="4" 
-            fill="#10b981" 
+            fill="rgba(255, 255, 255, 0.02)" 
             opacity="0.85" 
-            stroke="#ffffff" 
+            stroke="rgba(255, 255, 255, 0.15)" 
             strokeWidth="1.5"
           />
           {/* Field markings */}
-          <circle cx="150" cy="100" r="18" fill="none" stroke="#ffffff" strokeWidth="1" />
-          <line x1="150" y1="65" x2="150" y2="135" stroke="#ffffff" strokeWidth="1" />
+          <circle cx="150" cy="100" r="18" fill="none" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="1" />
+          <line x1="150" y1="65" x2="150" y2="135" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="1" />
           <text 
             x="150" 
             y="103" 
             textAnchor="middle" 
-            fill="#ffffff" 
+            fill="rgba(255, 255, 255, 0.35)" 
             fontSize="7" 
             fontWeight="bold" 
             className="pointer-events-none font-sans uppercase tracking-widest"
           >
             PITCH
           </text>
-
+ 
           {/* Render Gates indicator */}
-          <text x="150" y="25" textAnchor="middle" fill="#64748b" fontSize="6" className="font-mono">GATE A (NORTH)</text>
-          <text x="270" y="103" textAnchor="middle" fill="#64748b" fontSize="6" className="font-mono rotate-90 origin-[270px_103px]">GATE B (EAST)</text>
-          <text x="150" y="185" textAnchor="middle" fill="#64748b" fontSize="6" className="font-mono">GATE C (SOUTH)</text>
-          <text x="25" y="103" textAnchor="middle" fill="#64748b" fontSize="6" className="font-mono -rotate-90 origin-[25px_103px]">GATE D (WEST - ADA)</text>
-
+          <text x="150" y="25" textAnchor="middle" fill="#71717a" fontSize="6" className="font-mono">GATE A (NORTH)</text>
+          <text x="270" y="103" textAnchor="middle" fill="#71717a" fontSize="6" className="font-mono rotate-90 origin-[270px_103px]">GATE B (EAST)</text>
+          <text x="150" y="185" textAnchor="middle" fill="#71717a" fontSize="6" className="font-mono">GATE C (SOUTH)</text>
+          <text x="25" y="103" textAnchor="middle" fill="#71717a" fontSize="6" className="font-mono -rotate-90 origin-[25px_103px]">GATE D (WEST - ADA)</text>
+ 
           {/* Ring of Sections */}
           {sections.map((sec, idx) => {
-            // Distribute angles evenly from 0 to 2*PI
             const angle = (idx / sections.length) * 2 * Math.PI - Math.PI / 2;
             const x = cx + rx * Math.cos(angle);
             const y = cy + ry * Math.sin(angle);
             const isSelected = selectedSection === sec;
+            const style = getSectionColor(sec, isSelected);
 
             return (
               <g 
@@ -116,24 +157,24 @@ export default function MapSVG({ onSectionSelect, selectedSection }: MapSVGProps
                 aria-pressed={isSelected}
                 aria-label={`Stadium Section ${sec}. Select to see nearest gate and restrooms.`}
               >
-                {/* Sector outline slice or button circle */}
+                {/* Sector circle */}
                 <circle
                   cx={x}
                   cy={y}
                   r="10.5"
-                  fill={isSelected ? '#3b82f6' : '#1e293b'}
-                  stroke={isSelected ? '#ffffff' : '#475569'}
+                  fill={style.fill}
+                  stroke={style.stroke}
                   strokeWidth={isSelected ? '2' : '1'}
-                  className="transition-all duration-150 group-hover:fill-slate-700 group-focus:ring-2 group-focus:ring-blue-500 group-focus:stroke-blue-400"
+                  className="transition-all duration-150 group-hover:opacity-80 group-focus:ring-2 group-focus:ring-blue-500"
                 />
                 <text
                   x={x}
                   y={y + 3}
                   textAnchor="middle"
-                  fill={isSelected ? '#ffffff' : '#94a3b8'}
+                  fill={style.text}
                   fontSize="8"
                   fontWeight="bold"
-                  className="pointer-events-none transition-colors duration-150 group-hover:fill-white font-sans"
+                  className="pointer-events-none font-sans"
                 >
                   {sec}
                 </text>
@@ -144,12 +185,29 @@ export default function MapSVG({ onSectionSelect, selectedSection }: MapSVGProps
       </div>
 
       {/* Interactive Legend */}
-      <div className="flex gap-4 mt-1 text-[10px] text-slate-400 relative z-10">
-        <div className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-600 block"></span>
-          <span>Available Section</span>
-        </div>
-        <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center justify-center gap-4 mt-3 text-[10px] text-slate-400 relative z-10">
+        {showHeatmap ? (
+          <>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-700 border border-emerald-400 block"></span>
+              <span>Low (Clear)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-700 border border-amber-400 block"></span>
+              <span>Medium (Moderate)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-700 border border-red-400 block"></span>
+              <span>High (Congested)</span>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-600 block"></span>
+            <span>All Sections Muted</span>
+          </div>
+        )}
+        <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-blue-600 border border-white block"></span>
           <span>Selected Section</span>
         </div>

@@ -1,230 +1,184 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { seedInitialDataIfEmpty } from './lib/firebase';
 import FanView from './components/FanView';
 import OpsDashboard from './components/OpsDashboard';
-import TournamentWidget from './components/TournamentWidget';
-import TournamentPreviewCard from './components/TournamentPreviewCard';
-import { MapPin, Menu, X, Shield, Users, Trophy } from 'lucide-react';
+import ErrorBoundary from './components/ErrorBoundary';
+import { 
+  ShieldAlert, 
+  MapPin, 
+  Sparkles, 
+  CheckCircle, 
+  AlertCircle,
+  Accessibility,
+  Menu,
+  X,
+  Volume2
+} from 'lucide-react';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'fan' | 'ops'>('fan');
   const [accessibilityMode, setAccessibilityMode] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
-  const [tournamentOpen, setTournamentOpen] = useState<boolean>(false);
-  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
-  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const openPreview  = () => { if (hoverTimeout.current) clearTimeout(hoverTimeout.current); setPreviewOpen(true); };
-  const closePreview = () => { hoverTimeout.current = setTimeout(() => setPreviewOpen(false), 180); };
-  const openFull     = () => { setPreviewOpen(false); setTournamentOpen(true); };
-
+  // 1. Seed default crowd density and shuttle statuses in Firestore on initial load
   useEffect(() => {
     seedInitialDataIfEmpty();
   }, []);
 
-  // Apply a11y class on root so CSS cascade overrides work
-  useEffect(() => {
-    document.documentElement.classList.toggle('a11y', accessibilityMode);
-  }, [accessibilityMode]);
+  // Update root contrast colors based on accessibility mode
+  const appBg = accessibilityMode 
+    ? 'bg-black text-white min-h-screen' 
+    : 'bg-zinc-950 text-zinc-100 min-h-screen selection:bg-white selection:text-black relative overflow-hidden';
+
+  const navClasses = accessibilityMode
+    ? 'bg-black border-b-4 border-white py-4 px-6 sticky top-0 z-50'
+    : 'bg-zinc-950/40 backdrop-blur-xl border-b border-zinc-900/40 py-3.5 px-6 sticky top-0 z-50';
+
+  const navLinkActive = accessibilityMode
+    ? 'bg-white text-black border-2 border-black font-black px-4 py-1.5 text-xs uppercase tracking-widest'
+    : 'px-4 py-1.5 rounded-full bg-white text-black text-xs font-bold uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)]';
+
+  const navLinkInactive = accessibilityMode
+    ? 'text-white border-2 border-transparent font-bold px-4 py-1.5 text-xs uppercase tracking-widest hover:border-white'
+    : 'px-4 py-1.5 rounded-full text-zinc-400 text-xs font-bold uppercase tracking-widest hover:text-zinc-200 hover:bg-white/5 transition-all';
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className={appBg}>
+      {/* Premium ambient decorative elements */}
+      {!accessibilityMode && (
+        <>
+          <div className="absolute top-[-10%] left-[10%] w-[500px] h-[500px] rounded-full bg-zinc-800/15 blur-[120px] pointer-events-none select-none z-0"></div>
+          <div className="absolute top-[35%] right-[-10%] w-[600px] h-[600px] rounded-full bg-zinc-900/15 blur-[150px] pointer-events-none select-none z-0"></div>
+          <div className="absolute bottom-[5%] left-[15%] w-[450px] h-[450px] rounded-full bg-zinc-800/10 blur-[140px] pointer-events-none select-none z-0"></div>
+        </>
+      )}
 
-      {/* ── NAV ─────────────────────────────────────────────────────────── */}
-      <nav
-        role="navigation"
-        aria-label="Main Navigation"
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
-          background: 'rgba(8,12,20,0.85)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-        }}
+      {/* WCAG SKIP LINK */}
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:bg-yellow-400 focus:text-black focus:p-4 focus:z-[9999] font-black uppercase text-xs tracking-widest border-4 border-black focus:outline-none"
       >
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        Skip to main content
+      </a>
 
-          {/* Brand */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 10,
-              background: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 900, fontSize: 14, color: '#fff', letterSpacing: '-0.5px',
-              flexShrink: 0,
-            }}>SP</div>
+      {/* HEADER NAV */}
+      <nav className={navClasses} role="navigation" aria-label="Main Navigation">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          
+          {/* Logo Brand */}
+          <div className="flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm ${accessibilityMode ? 'bg-white text-black' : 'bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-lg'}`}>
+              S
+            </div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.3px', color: '#f1f5f9' }}>
-                Stadium<span style={{ color: '#3b82f6' }}>Pulse</span> <span style={{ color: 'rgba(255,255,255,0.35)' }}>AI</span>
-              </div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 1 }}>
-                FIFA World Cup 2026
-              </div>
+              <span className={`tracking-tighter font-sans font-black uppercase italic ${accessibilityMode ? 'text-2xl text-white' : 'text-xl text-white'}`}>
+                STADIUM<span className="text-zinc-400">PULSE</span> AI
+              </span>
+              <p className="text-[10px] text-zinc-500 font-mono tracking-widest uppercase">FIFA World Cup 2026 Smart Stadium</p>
             </div>
           </div>
 
-          {/* Desktop nav */}
-          <div className="hidden md:flex" style={{ alignItems: 'center', gap: 24 }}>
-            {/* View switcher pill */}
-            <div style={{
-              display: 'flex',
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: 99,
-              padding: 3,
-              gap: 2,
-            }} role="menubar">
-              {([
-                { key: 'fan', label: 'Fan View', icon: <Users size={13} /> },
-                { key: 'ops', label: 'Ops Hub', icon: <Shield size={13} /> },
-              ] as const).map(({ key, label, icon }) => (
-                <button
-                  key={key}
-                  onClick={() => setCurrentView(key)}
-                  role="menuitem"
-                  aria-label={`Switch to ${label}`}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    padding: '6px 14px',
-                    borderRadius: 99,
-                    fontSize: 12, fontWeight: 600,
-                    cursor: 'pointer',
-                    border: 'none',
-                    transition: 'all 0.15s',
-                    background: currentView === key ? '#3b82f6' : 'transparent',
-                    color: currentView === key ? '#fff' : 'rgba(255,255,255,0.4)',
-                  }}
-                >
-                  {icon}
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* Live indicator */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>
-              <span className="dot-live" />
-              MIAMI GARDENS • LIVE
-            </div>
-
-            {/* Tournament Hub button */}
-            <div style={{ position: 'relative' }} onMouseEnter={openPreview} onMouseLeave={closePreview}>
+          {/* Desktop Navigation Links & Live Status */}
+          <div className="hidden md:flex items-center gap-6">
+            <div className="flex bg-zinc-900/50 backdrop-blur-md rounded-full p-1 border border-zinc-800/50" role="menubar">
               <button
-                onClick={openFull}
-                title="Tournament Hub"
-                aria-label="Open Tournament Hub"
-                aria-expanded={previewOpen}
-                aria-haspopup="true"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)',
-                  background: previewOpen ? 'rgba(59,130,246,0.1)' : 'rgba(255,255,255,0.04)',
-                  color: previewOpen ? '#93c5fd' : 'rgba(255,255,255,0.55)',
-                  fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                  transition: 'all 0.15s',
-                }}
+                onClick={() => { setCurrentView('fan'); }}
+                className={currentView === 'fan' ? navLinkActive : navLinkInactive}
+                role="menuitem"
+                aria-label="Switch to Public Fan Companion View"
               >
-                <Trophy size={13} style={{ color: '#fbbf24' }} />
-                Tournament
+                Fan View
               </button>
-              {previewOpen && (
-                <TournamentPreviewCard onViewAll={openFull} />
-              )}
+              <button
+                onClick={() => { setCurrentView('ops'); }}
+                className={currentView === 'ops' ? navLinkActive : navLinkInactive}
+                role="menuitem"
+                aria-label="Switch to Secure Stadium Operations Hub"
+              >
+                Ops Mode
+              </button>
+            </div>
+            <div className="flex items-center gap-3 text-xs font-semibold font-mono text-zinc-400 tracking-wider">
+              <span className="flex h-2 w-2 rounded-full bg-zinc-300 animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.5)]"></span>
+              LIVE: MIAMI GARDENS STADIUM
             </div>
           </div>
 
-          {/* Mobile hamburger */}
+          {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden btn-icon"
+            className="md:hidden p-2 text-slate-400 hover:text-white focus:outline-none"
             aria-label="Toggle navigation menu"
           >
-            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* Mobile dropdown */}
+        {/* Mobile Navigation Dropdown */}
         {mobileMenuOpen && (
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: '12px 24px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {[
-              { key: 'fan' as const, label: 'Fan View' },
-              { key: 'ops' as const, label: 'Ops Hub' },
-            ].map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => { setCurrentView(key); setMobileMenuOpen(false); }}
-                style={{
-                  textAlign: 'left', padding: '10px 14px', borderRadius: 10,
-                  fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
-                  background: currentView === key ? '#3b82f6' : 'rgba(255,255,255,0.05)',
-                  color: currentView === key ? '#fff' : 'rgba(255,255,255,0.6)',
-                }}
-              >{label}</button>
-            ))}
-            {/* Tournament Hub shortcut for mobile */}
+          <div className="md:hidden mt-3 pt-3 border-t border-slate-800 flex flex-col gap-2">
             <button
-              onClick={() => { openFull(); setMobileMenuOpen(false); }}
-              style={{
-                textAlign: 'left', padding: '10px 14px', borderRadius: 10,
-                fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
-                background: 'rgba(251,191,36,0.08)',
-                color: '#fbbf24',
-                display: 'flex', alignItems: 'center', gap: 8,
-              }}
+              onClick={() => { setCurrentView('fan'); setMobileMenuOpen(false); }}
+              className={`text-left w-full ${currentView === 'fan' ? navLinkActive : navLinkInactive}`}
             >
-              <Trophy size={14}/> Tournament Hub
+              Public Fan View
+            </button>
+            <button
+              onClick={() => { setCurrentView('ops'); setMobileMenuOpen(false); }}
+              className={`text-left w-full ${currentView === 'ops' ? navLinkActive : navLinkInactive}`}
+            >
+              Staff Operations Hub
             </button>
           </div>
         )}
       </nav>
 
-      {/* ── BREADCRUMB STRIP ────────────────────────────────────────────── */}
-      <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '8px 24px' }}>
-        <div style={{ maxWidth: 1280, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>
-            <MapPin size={12} style={{ color: '#3b82f6' }} />
-            VENUE: FIFA WC 2026 — AZTECA / METLIFE (MOCK)
+      {/* CORE VIEW BODY */}
+      <div id="main-content" tabIndex={-1} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 outline-none">
+        
+        {/* LANDING WORLD CUP FLAG CONTEXT */}
+        <div className="mb-4 flex items-center justify-between gap-3 text-xs text-zinc-500 border-b border-zinc-900/80 pb-3 relative z-10">
+          <div className="flex items-center gap-1.5 font-mono">
+            <MapPin className="w-4 h-4 text-zinc-400" />
+            <span>VENUE: FIFA WORLD CUP AZTECA/METLIFE STADIUM (MOCK)</span>
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', fontFamily: 'monospace' }}>
-            MATCHDAY · JULY 2026
+          <div className="font-mono">
+            MATCHDAY LIVE: JULY 2026
           </div>
         </div>
+
+        {/* Dynamic routing */}
+        <ErrorBoundary>
+          {currentView === 'fan' ? (
+            <FanView 
+              accessibilityMode={accessibilityMode}
+              setAccessibilityMode={setAccessibilityMode}
+            />
+          ) : (
+            <OpsDashboard 
+              accessibilityMode={accessibilityMode}
+            />
+          )}
+        </ErrorBoundary>
       </div>
 
-      {/* ── MAIN CONTENT ────────────────────────────────────────────────── */}
-      <div style={{ flex: 1, maxWidth: 1280, margin: '0 auto', width: '100%', padding: '24px 24px' }}>
-        {currentView === 'fan' ? (
-          <FanView accessibilityMode={accessibilityMode} setAccessibilityMode={setAccessibilityMode} />
-        ) : (
-          <OpsDashboard accessibilityMode={accessibilityMode} />
-        )}
-      </div>
-
-      {/* ── FOOTER ──────────────────────────────────────────────────────── */}
-      <footer style={{
-        borderTop: '1px solid rgba(255,255,255,0.06)',
-        padding: '16px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 12,
-      }}>
-        <div style={{ display: 'flex', gap: 20 }}>
-          {['WCAG 2.1 AA', 'Screen Reader Ready', 'Keyboard Nav'].map(tag => (
-            <span key={tag} style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)', fontFamily: 'monospace', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              {tag}
-            </span>
-          ))}
+      {/* FOOTER ACCESSIBILITY STRIP */}
+      <footer className="mt-12 bg-zinc-950/20 backdrop-blur-md border-t border-zinc-900/80 py-4 px-6 md:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono shrink-0 relative z-10">
+        <div className="flex gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-3.5 h-3.5 rounded-full border-2 border-zinc-700"></div>
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">High Contrast</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3.5 h-3.5 rounded bg-zinc-800 border border-zinc-700"></div>
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Screen Reader Ready</span>
+          </div>
         </div>
-        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)', fontFamily: 'monospace', textAlign: 'right' }}>
-          STADIUMPULSE AI · v4.0 · Gemini + Firestore + Firebase Auth
+        <div className="text-[10px] text-zinc-500 font-medium text-center md:text-right">
+          FIFA WORLD CUP 2026 SMART COMPANION • VERSION 4.0.2-STABLE
+          <p className="text-[9px] text-zinc-600 mt-0.5">Secure Firestore DB • server-side Gemini API verification</p>
         </div>
       </footer>
-      {/* ── TOURNAMENT HUB MODAL ────────────────────────────────────────── */}
-      {tournamentOpen && <TournamentWidget onClose={() => setTournamentOpen(false)} />}
     </div>
   );
 }

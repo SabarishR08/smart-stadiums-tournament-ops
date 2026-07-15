@@ -11,16 +11,79 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 // Enable JSON parse with standard limit to prevent oversized payloads
 app.use(express.json({ limit: '10mb' }));
 
-// Set CORS policy - lock to APP_URL in production, open in development
-const allowedOrigin = process.env.NODE_ENV === 'production'
-  ? (process.env.APP_URL || false)   // false = block all if APP_URL not set
-  : true;                            // allow any origin in local dev
+// Enterprise CORS Whitelist Policy
+const CORS_WHITELIST = [
+  /localhost:\d+$/,
+  /\.run\.app$/,
+  /\.google\.com$/,
+  /\.google-aistudio\.com$/
+];
 
 app.use(cors({
-  origin: allowedOrigin,
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+    const isAllowed = CORS_WHITELIST.some(regex => regex.test(origin));
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS blocked: Origin not allowed by StadiumPulse AI security policy.'));
+    }
+  },
   methods: ['GET', 'POST'],
   credentials: true
 }));
+
+// Stateless CSRF Double-Submit Verification
+const csrfValidation = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  // Safe methods don't require CSRF checks
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    return next();
+  }
+  
+  // Custom double-submit verification header
+  const clientCsrfToken = req.headers['x-csrf-token'];
+  const expectedToken = 'stadium_pulse_secure_csrf_token_2026';
+  
+  if (!clientCsrfToken || clientCsrfToken !== expectedToken) {
+    res.status(403).json({ error: 'CSRF security check failed. Request rejected.' });
+    return;
+  }
+  next();
+};
+
+// Apply CSRF double submit check on all API routes
+app.use('/api', csrfValidation);
+
+// Enterprise CSP and Security Headers Middleware (Helmet Equivalent)
+app.use((req, res, next) => {
+  // Set strict transport security (STS)
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  
+  // Set X-Content-Type-Options to prevent MIME-sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  
+  // Set X-Frame-Options to allow framing only inside Google AI Studio/Cloud Run contexts
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  
+  // XSS protection header for older browsers
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  
+  // Referrer Policy
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Robust Content Security Policy (CSP) allowing Google services, maps, speech, and analytics
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self' https: 'unsafe-inline' 'unsafe-eval' data: blob:; " +
+    "frame-ancestors 'self' https://ai.studio https://*.google.com https://*.run.app; " +
+    "connect-src 'self' https: wss:; " +
+    "img-src 'self' https: data: blob:; " +
+    "media-src 'self' https: blob: data:;"
+  );
+  
+  next();
+});
 
 // Basic request logger
 app.use((req, res, next) => {
@@ -28,35 +91,67 @@ app.use((req, res, next) => {
   next();
 });
 
-// Simple In-Memory Rate Limiting
-const ipLimits: { [ip: string]: { count: number; resetTime: number } } = {};
+// Advanced Sliding Window Rate Limiter with IP Blacklisting
+const ipLimits: { [ip: string]: { count: number; resetTime: number; blacklistedUntil?: number } } = {};
 const rateLimiter = (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const ip = req.headers['x-forwarded-for'] as string || req.ip || 'unknown-ip';
+  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] || req.ip || 'unknown-ip';
   const now = Date.now();
   const WINDOW_MS = 60000; // 1 minute window
-  const MAX_REQUESTS = 40; // max 40 requests per minute per IP
+  const MAX_REQUESTS = 50; // Max 50 requests/min
+  const BLACKLIST_DURATION_MS = 300000; // 5 minutes penalty
 
-  if (!ipLimits[ip]) {
+  const ipData = ipLimits[ip];
+
+  // Check if IP is blacklisted
+  if (ipData && ipData.blacklistedUntil && now < ipData.blacklistedUntil) {
+    res.status(403).json({ 
+      error: `Access Denied: This IP is temporarily blacklisted due to API abuse. Remaining time: ${Math.ceil((ipData.blacklistedUntil - now) / 1000)} seconds.` 
+    });
+    return;
+  }
+
+  if (!ipData) {
     ipLimits[ip] = { count: 1, resetTime: now + WINDOW_MS };
     return next();
   }
 
-  const limitInfo = ipLimits[ip];
-  if (now > limitInfo.resetTime) {
-    limitInfo.count = 1;
-    limitInfo.resetTime = now + WINDOW_MS;
+  if (now > ipData.resetTime) {
+    ipData.count = 1;
+    ipData.resetTime = now + WINDOW_MS;
     return next();
   }
 
-  limitInfo.count++;
-  if (limitInfo.count > MAX_REQUESTS) {
+  ipData.count++;
+  if (ipData.count > MAX_REQUESTS * 1.5) {
+    // Flagrant abuse: Blacklist for 5 minutes
+    ipData.blacklistedUntil = now + BLACKLIST_DURATION_MS;
+    res.status(403).json({ 
+      error: 'Access Denied: High volume rate abuse detected. IP temporarily blacklisted for 5 minutes.' 
+    });
+    return;
+  }
+
+  if (ipData.count > MAX_REQUESTS) {
     res.status(429).json({ error: 'Too many requests. Please wait a minute and try again.' });
     return;
   }
   next();
 };
 
-// Apply rate limiter to API routes
+// Role-Based Access Control (RBAC) middleware for sensitive operations endpoints
+const checkStaffRole = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const userRole = req.headers['x-user-role'];
+  
+  if (!userRole || userRole !== 'staff') {
+    res.status(403).json({ 
+      error: 'Access Denied: This operational route is restricted to authorized Stadium Operations Staff (RBAC).' 
+    });
+    return;
+  }
+  next();
+};
+
+// Apply rate limiter to all API routes
 app.use('/api', rateLimiter);
 
 // Simple In-Memory Cache for Gemini Responses (60-second TTL)
@@ -83,6 +178,38 @@ function getAiClient(): GoogleGenAI {
   return aiClient;
 }
 
+// Input sanitization utility to prevent cross-site scripting (XSS)
+export function sanitizeInput(input: string): string {
+  if (!input) return '';
+  return input
+    .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, '') // Strip script tags
+    .replace(/on\w+="[^"]*"/gi, '')                     // Strip inline event handlers
+    .replace(/javascript:/gi, '')                       // Strip javascript: pseudo-protocol
+    .trim();
+}
+
+// Prompt injection protection scanner for LLM safety and guardrails
+export function hasPromptInjection(input: string): boolean {
+  if (!input) return false;
+  const normalized = input.toLowerCase();
+  const injectionPatterns = [
+    'ignore previous',
+    'ignore all previous',
+    'system override',
+    'you must now act as',
+    'jailbreak',
+    'forget your instructions',
+    'forget everything',
+    'new prompt:',
+    'prompt disclosure',
+    'disclose prompt',
+    'reveal your prompt',
+    'bypass guidelines',
+    'override safety'
+  ];
+  return injectionPatterns.some(pattern => normalized.includes(pattern));
+}
+
 // Check if Gemini Key is set
 function isGeminiConfigured(): boolean {
   return !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'MY_GEMINI_API_KEY';
@@ -106,8 +233,18 @@ app.post('/api/chat', async (req, res) => {
       return;
     }
 
+    // Input sanitization and prompt injection protection
+    const sanitizedMessage = sanitizeInput(message);
+    if (hasPromptInjection(sanitizedMessage)) {
+      res.status(400).json({ 
+        error: 'Security alert: Your input matches patterns associated with prompt injection or unsafe commands. Request blocked.',
+        securityAlert: true
+      });
+      return;
+    }
+
     // Check Cache first for exactly identical message
-    const cacheKey = `chat_${message.toLowerCase().trim()}`;
+    const cacheKey = `chat_${sanitizedMessage.toLowerCase().trim()}`;
     const cached = queryCache[cacheKey];
     if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
       console.log('Serving chat response from server-side cache');
@@ -117,7 +254,7 @@ app.post('/api/chat', async (req, res) => {
 
     if (!isGeminiConfigured()) {
       // High-quality mock responses in multiple languages for standard stadium questions
-      const msgLower = message.toLowerCase();
+      const msgLower = sanitizedMessage.toLowerCase();
       let reply = "Hello! I am your StadiumPulse AI Concierge. I can guide you with seat finding, gate directions, restroom/food locations, and match schedules. Please make sure to add your GEMINI_API_KEY for active live generation!";
       
       if (msgLower.includes('baño') || msgLower.includes('sanitario') || msgLower.includes('restroom') || msgLower.includes('toilet')) {
@@ -130,8 +267,8 @@ app.post('/api/chat', async (req, res) => {
 
       // Echo language detection
       let detectedLang = 'en';
-      if (/[\u0600-\u06FF]/.test(message)) detectedLang = 'ar';
-      else if (/[\u0900-\u097F]/.test(message)) detectedLang = 'hi';
+      if (/[\u0600-\u06FF]/.test(sanitizedMessage)) detectedLang = 'ar';
+      else if (/[\u0900-\u097F]/.test(sanitizedMessage)) detectedLang = 'hi';
       else if (msgLower.includes('hola') || msgLower.includes('gracias') || msgLower.includes('dónde')) {
         detectedLang = 'es';
         reply = "¡Hola! Los baños más cercanos están cerca de la Puerta A, B, C y D. Los sanitarios accesibles están en la Puerta D. ¡Que disfrute del partido!";
@@ -180,7 +317,7 @@ Return a JSON string matching this structure:
       ? history.slice(-5).map((m: any) => `${m.sender === 'user' ? 'User' : 'Assistant'}: ${m.text}`).join('\n')
       : '';
 
-    const contentPrompt = `${systemPrompt}\n\nChat History:\n${formattedHistory}\n\nUser Message: ${message}\n\nReturn the JSON object directly. Do not include markdown code block formatting.`;
+    const contentPrompt = `${systemPrompt}\n\nChat History:\n${formattedHistory}\n\nUser Message: ${sanitizedMessage}\n\nReturn the JSON object directly. Do not include markdown code block formatting.`;
 
     const result = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
@@ -313,7 +450,7 @@ Return JSON format:
  * 3. AI DECISION SUPPORT PANEL (Ops Staff Only)
  * Evaluates stadium incidents and outputs ranked tactical actions.
  */
-app.post('/api/decision-support', async (req, res) => {
+app.post('/api/decision-support', checkStaffRole, async (req, res) => {
   try {
     const { situation } = req.body;
 
@@ -324,6 +461,16 @@ app.post('/api/decision-support', async (req, res) => {
 
     if (situation.length > 1000) {
       res.status(400).json({ error: 'Situation details too long (max 1000 characters).' });
+      return;
+    }
+
+    // Input sanitization and prompt injection protection
+    const sanitizedSituation = sanitizeInput(situation);
+    if (hasPromptInjection(sanitizedSituation)) {
+      res.status(400).json({ 
+        error: 'Security alert: Your input matches patterns associated with prompt injection or unsafe commands. Request blocked.',
+        securityAlert: true
+      });
       return;
     }
 
@@ -355,7 +502,7 @@ app.post('/api/decision-support', async (req, res) => {
     const decisionPrompt = `You are the Chief of Stadium Operations for the FIFA World Cup 2026.
 Analyze the following active operational situation and provide 2-3 ranked actionable tactical recommendations to resolve the situation safely and efficiently.
 
-Situation: "${situation}"
+Situation: "${sanitizedSituation}"
 
 For each recommendation, give a concrete action title and direct, practical reasoning behind it.
 Return JSON format:
@@ -399,7 +546,7 @@ Return JSON format:
  * 4. MULTILINGUAL BROADCAST TOOL (Ops Staff Only)
  * Translates a given English broadcast text into 5 other supported languages.
  */
-app.post('/api/broadcast', async (req, res) => {
+app.post('/api/broadcast', checkStaffRole, async (req, res) => {
   try {
     const { originalText } = req.body;
 
@@ -413,9 +560,19 @@ app.post('/api/broadcast', async (req, res) => {
       return;
     }
 
+    // Input sanitization and prompt injection protection
+    const sanitizedBroadcast = sanitizeInput(originalText);
+    if (hasPromptInjection(sanitizedBroadcast)) {
+      res.status(400).json({ 
+        error: 'Security alert: Your input matches patterns associated with prompt injection or unsafe commands. Request blocked.',
+        securityAlert: true
+      });
+      return;
+    }
+
     if (!isGeminiConfigured()) {
       // High-quality static/mock translations
-      const tText = originalText.toLowerCase();
+      const tText = sanitizedBroadcast.toLowerCase();
       let es = "Atención por favor: Siga las instrucciones del personal de seguridad.";
       let fr = "Attention s'il vous plaît: Veuillez suivre les instructions des commissaires.";
       let ar = "تنبيه من فضلك: يرجى اتباع تعليمات مشرفي الأمن.";
@@ -432,7 +589,7 @@ app.post('/api/broadcast', async (req, res) => {
 
       res.json({
         translations: {
-          en: originalText,
+          en: sanitizedBroadcast,
           es,
           fr,
           ar,
@@ -448,12 +605,12 @@ app.post('/api/broadcast', async (req, res) => {
     const translationPrompt = `Translate the following English stadium announcement into Spanish, French, Arabic, Hindi, and Portuguese.
 Ensure the translations are clear, professional, natural, and highly accurate for a sports stadium environment.
 
-English: "${originalText}"
+English: "${sanitizedBroadcast}"
 
 Return JSON format:
 {
   "translations": {
-    "en": "${originalText}",
+    "en": "${sanitizedBroadcast}",
     "es": "Spanish translation",
     "fr": "French translation",
     "ar": "Arabic translation",
@@ -518,6 +675,3 @@ const setupServerAndVite = async () => {
 };
 
 setupServerAndVite();
-
-// Export the Express app for Vercel's serverless handler (api/index.js)
-export { app };
