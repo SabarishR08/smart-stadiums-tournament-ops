@@ -17,6 +17,12 @@ import {
   BookOpen
 } from 'lucide-react';
 
+import erlingHaalandPhoto from '../assets/images/erling_haaland_1784115571531.jpg';
+import harryKanePhoto from '../assets/images/harry_kane_1784115591212.jpg';
+import kalidouKoulibalyPhoto from '../assets/images/kalidou_koulibaly_1784115606990.jpg';
+import judeBellinghamPhoto from '../assets/images/jude_bellingham_1784115619964.jpg';
+import defaultUserPhoto from '../assets/images/default_user_1784115831811.jpg';
+
 // Country flag CDN mapping and fallback emojis
 export const COUNTRY_CODES: Record<string, { code: string; emoji: string }> = {
   "Mexico": { code: "mx", emoji: "🇲🇽" },
@@ -87,309 +93,20 @@ interface Group {
   teams: TeamStanding[];
 }
 
-// Full 12 Groups Data
-const INITIAL_GROUPS: Group[] = [
-  {
-    letter: "A",
-    teams: [
-      { name: "Mexico", mp: 3, w: 3, d: 0, l: 0, gf: 6, ga: 0, gd: 6, pts: 9, form: [
-        { outcome: 'W', opponent: 'South Africa', score: '2-0', date: '11 Jun 2026' },
-        { outcome: 'W', opponent: 'Republic of Korea', score: '1-0', date: '17 Jun 2026' },
-        { outcome: 'W', opponent: 'Czechia', score: '3-0', date: '23 Jun 2026' }
-      ]},
-      { name: "South Africa", mp: 3, w: 1, d: 1, l: 1, gf: 2, ga: 3, gd: -1, pts: 4, form: [
-        { outcome: 'L', opponent: 'Mexico', score: '0-2', date: '11 Jun 2026' },
-        { outcome: 'D', opponent: 'Czechia', score: '1-1', date: '17 Jun 2026' },
-        { outcome: 'W', opponent: 'Republic of Korea', score: '1-0', date: '23 Jun 2026' }
-      ]},
-      { name: "Republic of Korea", mp: 3, w: 1, d: 0, l: 2, gf: 2, ga: 3, gd: -1, pts: 3, form: [
-        { outcome: 'W', opponent: 'Czechia', score: '2-0', date: '11 Jun 2026' },
-        { outcome: 'L', opponent: 'Mexico', score: '0-1', date: '17 Jun 2026' },
-        { outcome: 'L', opponent: 'South Africa', score: '0-1', date: '23 Jun 2026' }
-      ]},
-      { name: "Czechia", mp: 3, w: 0, d: 1, l: 2, gf: 2, ga: 6, gd: -4, pts: 1, form: [
-        { outcome: 'L', opponent: 'Republic of Korea', score: '0-2', date: '11 Jun 2026' },
-        { outcome: 'D', opponent: 'South Africa', score: '1-1', date: '17 Jun 2026' },
-        { outcome: 'L', opponent: 'Mexico', score: '1-3', date: '23 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "B",
-    teams: [
-      { name: "Canada", mp: 3, w: 2, d: 1, l: 0, gf: 5, ga: 2, gd: 3, pts: 7, form: [
-        { outcome: 'W', opponent: 'Qatar', score: '2-1', date: '12 Jun 2026' },
-        { outcome: 'D', opponent: 'Switzerland', score: '1-1', date: '18 Jun 2026' },
-        { outcome: 'W', opponent: 'Bosnia and Herzegovina', score: '2-0', date: '24 Jun 2026' }
-      ]},
-      { name: "Switzerland", mp: 3, w: 2, d: 1, l: 0, gf: 4, ga: 2, gd: 2, pts: 7, form: [
-        { outcome: 'W', opponent: 'Bosnia and Herzegovina', score: '2-1', date: '12 Jun 2026' },
-        { outcome: 'D', opponent: 'Canada', score: '1-1', date: '18 Jun 2026' },
-        { outcome: 'W', opponent: 'Qatar', score: '1-0', date: '24 Jun 2026' }
-      ]},
-      { name: "Qatar", mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 5, gd: -2, pts: 3, form: [
-        { outcome: 'L', opponent: 'Canada', score: '1-2', date: '12 Jun 2026' },
-        { outcome: 'W', opponent: 'Bosnia and Herzegovina', score: '2-1', date: '18 Jun 2026' },
-        { outcome: 'L', opponent: 'Switzerland', score: '0-1', date: '24 Jun 2026' }
-      ]},
-      { name: "Bosnia and Herzegovina", mp: 3, w: 0, d: 0, l: 3, gf: 2, ga: 5, gd: -3, pts: 0, form: [
-        { outcome: 'L', opponent: 'Switzerland', score: '1-2', date: '12 Jun 2026' },
-        { outcome: 'L', opponent: 'Qatar', score: '1-2', date: '18 Jun 2026' },
-        { outcome: 'L', opponent: 'Canada', score: '0-2', date: '24 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "C",
-    teams: [
-      { name: "USA", mp: 3, w: 3, d: 0, l: 0, gf: 7, ga: 1, gd: 6, pts: 9, form: [
-        { outcome: 'W', opponent: 'Paraguay', score: '3-0', date: '12 Jun 2026' },
-        { outcome: 'W', opponent: 'Turkiye', score: '2-0', date: '18 Jun 2026' },
-        { outcome: 'W', opponent: 'Australia', score: '2-1', date: '24 Jun 2026' }
-      ]},
-      { name: "Australia", mp: 3, w: 2, d: 0, l: 1, gf: 4, ga: 3, gd: 1, pts: 6, form: [
-        { outcome: 'W', opponent: 'Turkiye', score: '1-0', date: '12 Jun 2026' },
-        { outcome: 'W', opponent: 'Paraguay', score: '2-1', date: '18 Jun 2026' },
-        { outcome: 'L', opponent: 'USA', score: '1-2', date: '24 Jun 2026' }
-      ]},
-      { name: "Turkiye", mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 4, gd: -1, pts: 3, form: [
-        { outcome: 'L', opponent: 'Australia', score: '0-1', date: '12 Jun 2026' },
-        { outcome: 'L', opponent: 'USA', score: '0-2', date: '18 Jun 2026' },
-        { outcome: 'W', opponent: 'Paraguay', score: '3-1', date: '24 Jun 2026' }
-      ]},
-      { name: "Paraguay", mp: 3, w: 0, d: 0, l: 3, gf: 2, ga: 7, gd: -5, pts: 0, form: [
-        { outcome: 'L', opponent: 'USA', score: '0-3', date: '12 Jun 2026' },
-        { outcome: 'L', opponent: 'Australia', score: '1-2', date: '18 Jun 2026' },
-        { outcome: 'L', opponent: 'Turkiye', score: '1-3', date: '24 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "D",
-    teams: [
-      { name: "Brazil", mp: 3, w: 2, d: 1, l: 0, gf: 6, ga: 2, gd: 4, pts: 7, form: [
-        { outcome: 'W', opponent: 'Haiti', score: '3-0', date: '13 Jun 2026' },
-        { outcome: 'D', opponent: 'Morocco', score: '1-1', date: '19 Jun 2026' },
-        { outcome: 'W', opponent: 'Scotland', score: '2-1', date: '25 Jun 2026' }
-      ]},
-      { name: "Morocco", mp: 3, w: 1, d: 2, l: 0, gf: 4, ga: 3, gd: 1, pts: 5, form: [
-        { outcome: 'W', opponent: 'Scotland', score: '2-1', date: '13 Jun 2026' },
-        { outcome: 'D', opponent: 'Brazil', score: '1-1', date: '19 Jun 2026' },
-        { outcome: 'D', opponent: 'Haiti', score: '1-1', date: '25 Jun 2026' }
-      ]},
-      { name: "Scotland", mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 5, gd: -2, pts: 3, form: [
-        { outcome: 'L', opponent: 'Morocco', score: '1-2', date: '13 Jun 2026' },
-        { outcome: 'W', opponent: 'Haiti', score: '1-0', date: '19 Jun 2026' },
-        { outcome: 'L', opponent: 'Brazil', score: '1-2', date: '25 Jun 2026' }
-      ]},
-      { name: "Haiti", mp: 3, w: 0, d: 1, l: 2, gf: 2, ga: 5, gd: -3, pts: 1, form: [
-        { outcome: 'L', opponent: 'Brazil', score: '0-3', date: '13 Jun 2026' },
-        { outcome: 'L', opponent: 'Scotland', score: '0-1', date: '19 Jun 2026' },
-        { outcome: 'D', opponent: 'Morocco', score: '1-1', date: '25 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "E",
-    teams: [
-      { name: "Germany", mp: 3, w: 3, d: 0, l: 0, gf: 8, ga: 2, gd: 6, pts: 9, form: [
-        { outcome: 'W', opponent: 'Curacao', score: '4-0', date: '13 Jun 2026' },
-        { outcome: 'W', opponent: 'Ivory Coast', score: '2-1', date: '19 Jun 2026' },
-        { outcome: 'W', opponent: 'Ecuador', score: '2-1', date: '25 Jun 2026' }
-      ]},
-      { name: "Ecuador", mp: 3, w: 2, d: 0, l: 1, gf: 5, ga: 4, gd: 1, pts: 6, form: [
-        { outcome: 'W', opponent: 'Ivory Coast', score: '2-1', date: '13 Jun 2026' },
-        { outcome: 'W', opponent: 'Curacao', score: '2-1', date: '19 Jun 2026' },
-        { outcome: 'L', opponent: 'Germany', score: '1-2', date: '25 Jun 2026' }
-      ]},
-      { name: "Ivory Coast", mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 5, gd: -2, pts: 3, form: [
-        { outcome: 'L', opponent: 'Ecuador', score: '1-2', date: '13 Jun 2026' },
-        { outcome: 'L', opponent: 'Germany', score: '1-2', date: '19 Jun 2026' },
-        { outcome: 'W', opponent: 'Curacao', score: '1-0', date: '25 Jun 2026' }
-      ]},
-      { name: "Curacao", mp: 3, w: 0, d: 0, l: 3, gf: 2, ga: 7, gd: -5, pts: 0, form: [
-        { outcome: 'L', opponent: 'Germany', score: '0-4', date: '13 Jun 2026' },
-        { outcome: 'L', opponent: 'Ecuador', score: '1-2', date: '19 Jun 2026' },
-        { outcome: 'L', opponent: 'Ivory Coast', score: '1-1', date: '25 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "F",
-    teams: [
-      { name: "Netherlands", mp: 3, w: 2, d: 1, l: 0, gf: 5, ga: 1, gd: 4, pts: 7, form: [
-        { outcome: 'W', opponent: 'Tunisia', score: '2-0', date: '14 Jun 2026' },
-        { outcome: 'D', opponent: 'Sweden', score: '1-1', date: '20 Jun 2026' },
-        { outcome: 'W', opponent: 'Japan', score: '2-0', date: '26 Jun 2026' }
-      ]},
-      { name: "Japan", mp: 3, w: 2, d: 0, l: 1, gf: 4, ga: 3, gd: 1, pts: 6, form: [
-        { outcome: 'W', opponent: 'Sweden', score: '2-1', date: '14 Jun 2026' },
-        { outcome: 'W', opponent: 'Tunisia', score: '2-0', date: '20 Jun 2026' },
-        { outcome: 'L', opponent: 'Netherlands', score: '0-2', date: '26 Jun 2026' }
-      ]},
-      { name: "Sweden", mp: 3, w: 1, d: 1, l: 1, gf: 3, ga: 3, gd: 0, pts: 4, form: [
-        { outcome: 'L', opponent: 'Japan', score: '1-2', date: '14 Jun 2026' },
-        { outcome: 'D', opponent: 'Netherlands', score: '1-1', date: '20 Jun 2026' },
-        { outcome: 'W', opponent: 'Tunisia', score: '1-0', date: '26 Jun 2026' }
-      ]},
-      { name: "Tunisia", mp: 3, w: 0, d: 0, l: 3, gf: 0, ga: 5, gd: -5, pts: 0, form: [
-        { outcome: 'L', opponent: 'Netherlands', score: '0-2', date: '14 Jun 2026' },
-        { outcome: 'L', opponent: 'Japan', score: '0-2', date: '20 Jun 2026' },
-        { outcome: 'L', opponent: 'Sweden', score: '0-1', date: '26 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "G",
-    teams: [
-      { name: "Belgium", mp: 3, w: 2, d: 1, l: 0, gf: 6, ga: 2, gd: 4, pts: 7, form: [
-        { outcome: 'W', opponent: 'New Zealand', score: '3-0', date: '14 Jun 2026' },
-        { outcome: 'D', opponent: 'Egypt', score: '1-1', date: '20 Jun 2026' },
-        { outcome: 'W', opponent: 'Iran', score: '2-1', date: '26 Jun 2026' }
-      ]},
-      { name: "Egypt", mp: 3, w: 2, d: 1, l: 0, gf: 4, ga: 2, gd: 2, pts: 7, form: [
-        { outcome: 'W', opponent: 'Iran', score: '1-0', date: '14 Jun 2026' },
-        { outcome: 'D', opponent: 'Belgium', score: '1-1', date: '20 Jun 2026' },
-        { outcome: 'W', opponent: 'New Zealand', score: '2-1', date: '26 Jun 2026' }
-      ]},
-      { name: "Iran", mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 5, gd: -2, pts: 3, form: [
-        { outcome: 'L', opponent: 'Egypt', score: '0-1', date: '14 Jun 2026' },
-        { outcome: 'W', opponent: 'New Zealand', score: '2-1', date: '20 Jun 2026' },
-        { outcome: 'L', opponent: 'Belgium', score: '1-2', date: '26 Jun 2026' }
-      ]},
-      { name: "New Zealand", mp: 3, w: 0, d: 0, l: 3, gf: 2, ga: 7, gd: -5, pts: 0, form: [
-        { outcome: 'L', opponent: 'Belgium', score: '0-3', date: '14 Jun 2026' },
-        { outcome: 'L', opponent: 'Iran', score: '1-2', date: '20 Jun 2026' },
-        { outcome: 'L', opponent: 'Egypt', score: '1-2', date: '26 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "H",
-    teams: [
-      { name: "Spain", mp: 3, w: 3, d: 0, l: 0, gf: 7, ga: 1, gd: 6, pts: 9, form: [
-        { outcome: 'W', opponent: 'Cape Verde', score: '3-0', date: '15 Jun 2026' },
-        { outcome: 'W', opponent: 'Saudi Arabia', score: '2-0', date: '21 Jun 2026' },
-        { outcome: 'W', opponent: 'Uruguay', score: '2-1', date: '27 Jun 2026' }
-      ]},
-      { name: "Uruguay", mp: 3, w: 2, d: 0, l: 1, gf: 5, ga: 3, gd: 2, pts: 6, form: [
-        { outcome: 'W', opponent: 'Saudi Arabia', score: '2-0', date: '15 Jun 2026' },
-        { outcome: 'W', opponent: 'Cape Verde', score: '2-1', date: '21 Jun 2026' },
-        { outcome: 'L', opponent: 'Spain', score: '1-2', date: '27 Jun 2026' }
-      ]},
-      { name: "Saudi Arabia", mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 5, gd: -2, pts: 3, form: [
-        { outcome: 'L', opponent: 'Uruguay', score: '0-2', date: '15 Jun 2026' },
-        { outcome: 'L', opponent: 'Spain', score: '0-2', date: '21 Jun 2026' },
-        { outcome: 'W', opponent: 'Cape Verde', score: '3-1', date: '27 Jun 2026' }
-      ]},
-      { name: "Cape Verde", mp: 3, w: 0, d: 0, l: 3, gf: 2, ga: 7, gd: -5, pts: 0, form: [
-        { outcome: 'L', opponent: 'Spain', score: '0-3', date: '15 Jun 2026' },
-        { outcome: 'L', opponent: 'Uruguay', score: '1-2', date: '21 Jun 2026' },
-        { outcome: 'L', opponent: 'Saudi Arabia', score: '1-3', date: '27 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "I",
-    teams: [
-      { name: "France", mp: 3, w: 2, d: 1, l: 0, gf: 5, ga: 1, gd: 4, pts: 7, form: [
-        { outcome: 'W', opponent: 'Iraq', score: '3-0', date: '15 Jun 2026' },
-        { outcome: 'D', opponent: 'Senegal', score: '1-1', date: '21 Jun 2026' },
-        { outcome: 'W', opponent: 'Norway', score: '1-0', date: '27 Jun 2026' }
-      ]},
-      { name: "Senegal", mp: 3, w: 1, d: 2, l: 0, gf: 3, ga: 2, gd: 1, pts: 5, form: [
-        { outcome: 'W', opponent: 'Norway', score: '1-0', date: '15 Jun 2026' },
-        { outcome: 'D', opponent: 'France', score: '1-1', date: '21 Jun 2026' },
-        { outcome: 'D', opponent: 'Iraq', score: '1-1', date: '27 Jun 2026' }
-      ]},
-      { name: "Norway", mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 4, gd: -1, pts: 3, form: [
-        { outcome: 'L', opponent: 'Senegal', score: '0-1', date: '15 Jun 2026' },
-        { outcome: 'W', opponent: 'Iraq', score: '3-1', date: '21 Jun 2026' },
-        { outcome: 'L', opponent: 'France', score: '0-1', date: '27 Jun 2026' }
-      ]},
-      { name: "Iraq", mp: 3, w: 0, d: 1, l: 2, gf: 2, ga: 7, gd: -5, pts: 1, form: [
-        { outcome: 'L', opponent: 'France', score: '0-3', date: '15 Jun 2026' },
-        { outcome: 'L', opponent: 'Norway', score: '1-3', date: '21 Jun 2026' },
-        { outcome: 'D', opponent: 'Senegal', score: '1-1', date: '27 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "J",
-    teams: [
-      { name: "Argentina", mp: 3, w: 3, d: 0, l: 0, gf: 8, ga: 1, gd: 7, pts: 9, form: [
-        { outcome: 'W', opponent: 'Jordan', score: '4-0', date: '16 Jun 2026' },
-        { outcome: 'W', opponent: 'Algeria', score: '2-0', date: '22 Jun 2026' },
-        { outcome: 'W', opponent: 'Austria', score: '2-1', date: '28 Jun 2026' }
-      ]},
-      { name: "Austria", mp: 3, w: 2, d: 0, l: 1, gf: 4, ga: 3, gd: 1, pts: 6, form: [
-        { outcome: 'W', opponent: 'Algeria', score: '2-0', date: '16 Jun 2026' },
-        { outcome: 'W', opponent: 'Jordan', score: '1-0', date: '22 Jun 2026' },
-        { outcome: 'L', opponent: 'Argentina', score: '1-2', date: '28 Jun 2026' }
-      ]},
-      { name: "Algeria", mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 5, gd: -2, pts: 3, form: [
-        { outcome: 'L', opponent: 'Austria', score: '0-2', date: '16 Jun 2026' },
-        { outcome: 'L', opponent: 'Argentina', score: '0-2', date: '22 Jun 2026' },
-        { outcome: 'W', opponent: 'Jordan', score: '3-1', date: '28 Jun 2026' }
-      ]},
-      { name: "Jordan", mp: 3, w: 0, d: 0, l: 3, gf: 2, ga: 8, gd: -6, pts: 0, form: [
-        { outcome: 'L', opponent: 'Argentina', score: '0-4', date: '16 Jun 2026' },
-        { outcome: 'L', opponent: 'Austria', score: '0-1', date: '22 Jun 2026' },
-        { outcome: 'L', opponent: 'Algeria', score: '1-3', date: '28 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "K",
-    teams: [
-      { name: "Portugal", mp: 3, w: 3, d: 0, l: 0, gf: 8, ga: 2, gd: 6, pts: 9, form: [
-        { outcome: 'W', opponent: 'Congo DR', score: '4-0', date: '16 Jun 2026' },
-        { outcome: 'W', opponent: 'Uzbekistan', score: '2-1', date: '22 Jun 2026' },
-        { outcome: 'W', opponent: 'Colombia', score: '2-1', date: '28 Jun 2026' }
-      ]},
-      { name: "Colombia", mp: 3, w: 2, d: 0, l: 1, gf: 5, ga: 3, gd: 2, pts: 6, form: [
-        { outcome: 'W', opponent: 'Uzbekistan', score: '2-0', date: '16 Jun 2026' },
-        { outcome: 'W', opponent: 'Congo DR', score: '2-1', date: '22 Jun 2026' },
-        { outcome: 'L', opponent: 'Portugal', score: '1-2', date: '28 Jun 2026' }
-      ]},
-      { name: "Uzbekistan", mp: 3, w: 1, d: 0, l: 2, gf: 3, ga: 5, gd: -2, pts: 3, form: [
-        { outcome: 'L', opponent: 'Colombia', score: '0-2', date: '16 Jun 2026' },
-        { outcome: 'L', opponent: 'Portugal', score: '1-2', date: '22 Jun 2026' },
-        { outcome: 'W', opponent: 'Congo DR', score: '2-1', date: '28 Jun 2026' }
-      ]},
-      { name: "Congo DR", mp: 3, w: 0, d: 0, l: 3, gf: 2, ga: 7, gd: -5, pts: 0, form: [
-        { outcome: 'L', opponent: 'Portugal', score: '0-4', date: '16 Jun 2026' },
-        { outcome: 'L', opponent: 'Colombia', score: '1-2', date: '22 Jun 2026' },
-        { outcome: 'L', opponent: 'Uzbekistan', score: '1-2', date: '28 Jun 2026' }
-      ]}
-    ]
-  },
-  {
-    letter: "L",
-    teams: [
-      { name: "England", mp: 3, w: 2, d: 1, l: 0, gf: 6, ga: 2, gd: 4, pts: 7, form: [
-        { outcome: 'W', opponent: 'Panama', score: '3-1', date: '17 Jun 2026' },
-        { outcome: 'D', opponent: 'Ghana', score: '1-1', date: '23 Jun 2026' },
-        { outcome: 'W', opponent: 'Croatia', score: '2-0', date: '29 Jun 2026' }
-      ]},
-      { name: "Croatia", mp: 3, w: 2, d: 0, l: 1, gf: 4, ga: 3, gd: 1, pts: 6, form: [
-        { outcome: 'W', opponent: 'Ghana', score: '2-1', date: '17 Jun 2026' },
-        { outcome: 'W', opponent: 'Panama', score: '2-0', date: '23 Jun 2026' },
-        { outcome: 'L', opponent: 'England', score: '0-2', date: '29 Jun 2026' }
-      ]},
-      { name: "Ghana", mp: 3, w: 1, d: 1, l: 1, gf: 3, ga: 4, gd: -1, pts: 4, form: [
-        { outcome: 'L', opponent: 'Croatia', score: '1-2', date: '17 Jun 2026' },
-        { outcome: 'D', opponent: 'England', score: '1-1', date: '23 Jun 2026' },
-        { outcome: 'W', opponent: 'Panama', score: '1-0', date: '29 Jun 2026' }
-      ]},
-      { name: "Panama", mp: 3, w: 0, d: 0, l: 3, gf: 2, ga: 6, gd: -4, pts: 0, form: [
-        { outcome: 'L', opponent: 'England', score: '1-3', date: '17 Jun 2026' },
-        { outcome: 'L', opponent: 'Croatia', score: '0-2', date: '23 Jun 2026' },
-        { outcome: 'L', opponent: 'Ghana', score: '0-1', date: '29 Jun 2026' }
-      ]}
-    ]
-  }
-];
+export const GROUP_TEAMS: Record<string, string[]> = {
+  "A": ["Mexico", "South Africa", "Republic of Korea", "Czechia"],
+  "B": ["Switzerland", "Canada", "Bosnia and Herzegovina", "Qatar"],
+  "C": ["Brazil", "Morocco", "Scotland", "Haiti"],
+  "D": ["USA", "Australia", "Paraguay", "Turkiye"],
+  "E": ["Germany", "Ivory Coast", "Ecuador", "Curacao"],
+  "F": ["Netherlands", "Japan", "Sweden", "Tunisia"],
+  "G": ["Belgium", "Egypt", "Iran", "New Zealand"],
+  "H": ["Spain", "Cape Verde", "Uruguay", "Saudi Arabia"],
+  "I": ["France", "Norway", "Senegal", "Iraq"],
+  "J": ["Argentina", "Austria", "Algeria", "Jordan"],
+  "K": ["Colombia", "Portugal", "Congo DR", "Uzbekistan"],
+  "L": ["England", "Croatia", "Ghana", "Panama"]
+};
 
 interface PlayerStat {
   rank: number;
@@ -402,23 +119,25 @@ interface PlayerStat {
 const PLAYER_STATS_DATA = {
   goals: [
     { rank: 1, name: "Kylian Mbappé", country: "France", value: 6, photo: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=120&h=120&q=80" },
-    { rank: 2, name: "Erling Haaland", country: "Norway", value: 5, photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&h=120&q=80" },
-    { rank: 3, name: "Lionel Messi", country: "Argentina", value: 4, photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=80" },
-    { rank: 4, name: "Harry Kane", country: "England", value: 3 },
+    { rank: 2, name: "Lionel Messi", country: "Argentina", value: 5, photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=80" },
+    { rank: 3, name: "Erling Haaland", country: "Norway", value: 5, photo: erlingHaalandPhoto },
+    { rank: 4, name: "Harry Kane", country: "England", value: 4, photo: harryKanePhoto },
     { rank: 5, name: "Vinícius Júnior", country: "Brazil", value: 3 }
   ] as PlayerStat[],
   assists: [
     { rank: 1, name: "Lionel Messi", country: "Argentina", value: 4, photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=80" },
-    { rank: 2, name: "Kevin De Bruyne", country: "Belgium", value: 3 },
-    { rank: 3, name: "Bruno Fernandes", country: "Portugal", value: 3 },
-    { rank: 4, name: "Antoine Griezmann", country: "France", value: 2 },
-    { rank: 5, name: "Neymar Jr", country: "Brazil", value: 2 }
+    { rank: 2, name: "Antoine Griezmann", country: "France", value: 3 },
+    { rank: 3, name: "Jude Bellingham", country: "England", value: 3, photo: judeBellinghamPhoto },
+    { rank: 4, name: "Bruno Fernandes", country: "Portugal", value: 3 },
+    { rank: 5, name: "Kevin De Bruyne", country: "Belgium", value: 2 },
+    { rank: 6, name: "Neymar Jr", country: "Brazil", value: 2 }
   ] as PlayerStat[],
   yellowCards: [
     { rank: 1, name: "Casemiro", country: "Brazil", value: 2 },
-    { rank: 2, name: "Antonio Rüdiger", country: "Germany", value: 2 },
-    { rank: 3, name: "Cristian Romero", country: "Argentina", value: 2 },
-    { rank: 4, name: "Pepe", country: "Portugal", value: 1 }
+    { rank: 2, name: "Kalidou Koulibaly", country: "Senegal", value: 2, photo: kalidouKoulibalyPhoto },
+    { rank: 3, name: "Antonio Rüdiger", country: "Germany", value: 2 },
+    { rank: 4, name: "Cristian Romero", country: "Argentina", value: 2 },
+    { rank: 5, name: "Pepe", country: "Portugal", value: 1 }
   ] as PlayerStat[],
   redCards: [
     { rank: 1, name: "Denzel Dumfries", country: "Netherlands", value: 1 },
@@ -430,26 +149,74 @@ const PLAYER_STATS_DATA = {
 const NEWS_DATA = [
   {
     id: 1,
-    headline: "FIFA World Cup 2026 Expansion Sparkles Globally",
-    category: "Tournament News",
-    time: "2 hours ago",
-    summary: "With 48 teams competing across 12 groups, the tournament has set unprecedented viewership and crowd attendance records in host nations.",
+    headline: "What soccer games are today? Breaking down World Cup schedule for July 15",
+    category: "Schedule",
+    time: "1h ago • USA TODAY on MSN",
+    summary: "The World Cup continues on Monday with two matchups. Here's everything you need to know before kickoff.",
     thumbnail: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=300&h=200&q=80"
   },
   {
     id: 2,
-    headline: "Azteca Stadium Redefines Fan Wayfinding Innovations",
-    category: "Stadium Tech",
-    time: "5 hours ago",
-    summary: "New AI-powered crowd flow analysis helps thousands of fans locate seats, nearest restrooms, and transportation paths within seconds.",
+    headline: "What channel is England vs Argentina soccer game on today? World Cup time, TV schedule",
+    category: "How to Watch",
+    time: "1h ago • Yahoo Sports",
+    summary: "What channel is the England soccer game vs Argentina on July 15 in the 2026 World Cup? Here's how to watch, including time, venue details, and live streaming options.",
     thumbnail: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=300&h=200&q=80"
   },
   {
     id: 3,
-    headline: "Argentina vs Portugal Replay Reaches Millions",
-    category: "Match Highlights",
-    time: "1 day ago",
-    summary: "A thrilling encounter showcasing tactical mastermind moments on the grandest stage. Live broadcasts hit peak server ratings.",
+    headline: "FIFA World Cup 2026 Final Halftime: When, Where To Watch Historic Show - Ft BTS, Shakira, Justin Bieber, Madonna",
+    category: "Entertainment",
+    time: "1h ago • Times Now",
+    summary: "The FIFA World Cup 2026 final will feature the tournament's first-ever halftime show, headlined by BTS, Madonna, Shakira, and Justin Bieber in a historic stadium performance.",
+    thumbnail: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=300&h=200&q=80"
+  },
+  {
+    id: 4,
+    headline: "FIFA World Cup brackets: Teams, predictions, schedule and road to the final",
+    category: "Brackets",
+    time: "1h ago • Al Jazeera on MSN",
+    summary: "Spain booked its place in the World Cup final while England and Argentina prepare for the game at Atlanta stadium.",
+    thumbnail: "https://images.unsplash.com/photo-1551958219-acbc608c6377?auto=format&fit=crop&w=300&h=200&q=80"
+  },
+  {
+    id: 5,
+    headline: "How to watch today’s World Cup semifinal match: Wednesday, July 15 - England vs Argentina",
+    category: "Match Coverage",
+    time: "1h ago • FOX 7 Austin",
+    summary: "The FIFA World Cup semifinals continue today with one match between England and Argentina on the pitch at Atlanta Stadium.",
+    thumbnail: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?auto=format&fit=crop&w=300&h=200&q=80"
+  },
+  {
+    id: 6,
+    headline: "2026 World Cup July 14 schedule: Soccer games today",
+    category: "Schedule",
+    time: "22h ago • ESPN on MSN",
+    summary: "What is the World Cup schedule today? Find out more about Tuesday's semifinal match.",
+    thumbnail: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=300&h=200&q=80"
+  },
+  {
+    id: 7,
+    headline: "World Cup half time show: When is the World Cup final, who is performing, how to watch and stream",
+    category: "Entertainment",
+    time: "18h ago • The Scotsman",
+    summary: "Here’s everything you need to know about the World Cup 2026 closing ceremony taking place in the United States this weekend.",
+    thumbnail: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=300&h=200&q=80"
+  },
+  {
+    id: 8,
+    headline: "World Cup semifinal backlash as US fans fume and demand change to European-friendly schedule",
+    category: "Fan Backlash",
+    time: "1d ago • Talksport",
+    summary: "Soccer fans across the United States have shared frustration over kick-off times for the four remaining World Cup games. The US supporters are calling for scheduling reforms.",
+    thumbnail: "https://images.unsplash.com/photo-1518063319789-7217e6706b04?auto=format&fit=crop&w=300&h=200&q=80"
+  },
+  {
+    id: 9,
+    headline: "Fifa World Cup 2026 Semi Final Fixtures Bd Schedule",
+    category: "Schedule",
+    time: "10h ago • India TV News",
+    summary: "Articles on Fifa World Cup 2026 Semi Final Fixtures Bd Schedule, Complete Coverage on Fifa World Cup 2026 Semi Final Fixtures Bd Schedule ...",
     thumbnail: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=300&h=200&q=80"
   }
 ];
@@ -457,10 +224,12 @@ const NEWS_DATA = [
 interface Match {
   id: string;
   status: 'live' | 'upcoming' | 'completed';
+  stage: string;
   teamA: string;
   teamB: string;
   score?: string;
   time: string;
+  date: string;
   venue: string;
   possession?: string;
   shots?: string;
@@ -469,59 +238,195 @@ interface Match {
   redCards?: string;
 }
 
-const MATCHES_DATA: Match[] = [
-  {
-    id: "m1",
-    status: "live",
-    teamA: "Argentina",
-    teamB: "Portugal",
-    score: "2 - 1",
-    time: "78' Second Half",
-    venue: "Azteca Stadium, Mexico City",
-    possession: "54% - 46%",
-    shots: "14 - 10",
-    corners: "6 - 4",
-    yellowCards: "2 - 3",
-    redCards: "0 - 0"
-  },
-  {
-    id: "m2",
-    status: "upcoming",
-    teamA: "USA",
-    teamB: "Australia",
-    time: "Tomorrow, 18:00 UTC",
-    venue: "MetLife Stadium, East Rutherford",
-    possession: "N/A",
-    shots: "N/A",
-    corners: "N/A",
-    yellowCards: "N/A",
-    redCards: "N/A"
-  },
-  {
-    id: "m3",
-    status: "upcoming",
-    teamA: "Mexico",
-    teamB: "South Africa",
-    time: "18 Jul, 20:00 UTC",
-    venue: "Estadio Azteca",
-    possession: "N/A",
-    shots: "N/A"
-  },
-  {
-    id: "m4",
-    status: "completed",
-    teamA: "France",
-    teamB: "Norway",
-    score: "1 - 0",
-    time: "Full Time (27 Jun)",
-    venue: "SoFi Stadium, Los Angeles",
-    possession: "51% - 49%",
-    shots: "11 - 8",
-    corners: "5 - 3",
-    yellowCards: "1 - 2",
-    redCards: "0 - 0"
+export function getVenue(id: string, stage: string, teamA: string): string {
+  const stadiums = [
+    "MetLife Stadium, New York/New Jersey",
+    "Estadio Azteca, Mexico City",
+    "SoFi Stadium, Los Angeles",
+    "AT&T Stadium, Dallas",
+    "Mercedes-Benz Stadium, Atlanta",
+    "Hard Rock Stadium, Miami",
+    "BC Place, Vancouver",
+    "BMO Field, Toronto",
+    "Estadio Akron, Guadalajara",
+    "Estadio BBVA, Monterrey",
+    "Lumen Field, Seattle",
+    "Levi's Stadium, San Francisco",
+    "NRG Stadium, Houston",
+    "Arrowhead Stadium, Kansas City",
+    "Lincoln Financial Field, Philadelphia",
+    "Gillette Stadium, Boston"
+  ];
+  let hash = 0;
+  const str = teamA + stage + id;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
+  const index = Math.abs(hash) % stadiums.length;
+  return stadiums[index];
+}
+
+const RAW_MATCHES = [
+  // --- Group A ---
+  { id: "gA1", status: "completed", stage: "Group A", teamA: "Mexico", teamB: "South Africa", score: "2 - 0", time: "FT", date: "Fri, Jun 12" },
+  { id: "gA2", status: "completed", stage: "Group A", teamA: "Republic of Korea", teamB: "Czechia", score: "2 - 1", time: "FT", date: "Fri, Jun 12" },
+  { id: "gA3", status: "completed", stage: "Group A", teamA: "Czechia", teamB: "South Africa", score: "1 - 1", time: "FT", date: "Thu, Jun 18" },
+  { id: "gA4", status: "completed", stage: "Group A", teamA: "Mexico", teamB: "Republic of Korea", score: "1 - 0", time: "FT", date: "Fri, Jun 19" },
+  { id: "gA5", status: "completed", stage: "Group A", teamA: "Czechia", teamB: "Mexico", score: "0 - 3", time: "FT", date: "Thu, Jun 25" },
+  { id: "gA6", status: "completed", stage: "Group A", teamA: "South Africa", teamB: "Republic of Korea", score: "1 - 0", time: "FT", date: "Thu, Jun 25" },
+
+  // --- Group B ---
+  { id: "gB1", status: "completed", stage: "Group B", teamA: "Canada", teamB: "Bosnia and Herzegovina", score: "1 - 1", time: "FT", date: "Sat, Jun 13" },
+  { id: "gB2", status: "completed", stage: "Group B", teamA: "Qatar", teamB: "Switzerland", score: "1 - 1", time: "FT", date: "Sun, Jun 14" },
+  { id: "gB3", status: "completed", stage: "Group B", teamA: "Switzerland", teamB: "Bosnia and Herzegovina", score: "4 - 1", time: "FT", date: "Fri, Jun 19" },
+  { id: "gB4", status: "completed", stage: "Group B", teamA: "Canada", teamB: "Qatar", score: "6 - 0", time: "FT", date: "Fri, Jun 19" },
+  { id: "gB5", status: "completed", stage: "Group B", teamA: "Switzerland", teamB: "Canada", score: "2 - 1", time: "FT", date: "Thu, Jun 25" },
+  { id: "gB6", status: "completed", stage: "Group B", teamA: "Bosnia and Herzegovina", teamB: "Qatar", score: "3 - 1", time: "FT", date: "Thu, Jun 25" },
+
+  // --- Group C ---
+  { id: "gC1", status: "completed", stage: "Group C", teamA: "Brazil", teamB: "Morocco", score: "1 - 1", time: "FT", date: "Sun, Jun 14" },
+  { id: "gC2", status: "completed", stage: "Group C", teamA: "Haiti", teamB: "Scotland", score: "0 - 1", time: "FT", date: "Sun, Jun 14" },
+  { id: "gC3", status: "completed", stage: "Group C", teamA: "Scotland", teamB: "Morocco", score: "0 - 1", time: "FT", date: "Sat, Jun 20" },
+  { id: "gC4", status: "completed", stage: "Group C", teamA: "Brazil", teamB: "Haiti", score: "3 - 0", time: "FT", date: "Sat, Jun 20" },
+  { id: "gC5", status: "completed", stage: "Group C", teamA: "Scotland", teamB: "Brazil", score: "0 - 3", time: "FT", date: "Thu, Jun 25" },
+  { id: "gC6", status: "completed", stage: "Group C", teamA: "Morocco", teamB: "Haiti", score: "4 - 2", time: "FT", date: "Thu, Jun 25" },
+
+  // --- Group D ---
+  { id: "gD1", status: "completed", stage: "Group D", teamA: "USA", teamB: "Paraguay", score: "4 - 1", time: "FT", date: "Sat, Jun 13" },
+  { id: "gD2", status: "completed", stage: "Group D", teamA: "Australia", teamB: "Turkiye", score: "2 - 0", time: "FT", date: "Sun, Jun 14" },
+  { id: "gD3", status: "completed", stage: "Group D", teamA: "USA", teamB: "Australia", score: "2 - 0", time: "FT", date: "Sat, Jun 20" },
+  { id: "gD4", status: "completed", stage: "Group D", teamA: "Turkiye", teamB: "Paraguay", score: "0 - 1", time: "FT", date: "Sat, Jun 20" },
+  { id: "gD5", status: "completed", stage: "Group D", teamA: "Turkiye", teamB: "USA", score: "3 - 2", time: "FT", date: "Fri, Jun 26" },
+  { id: "gD6", status: "completed", stage: "Group D", teamA: "Paraguay", teamB: "Australia", score: "0 - 0", time: "FT", date: "Fri, Jun 26" },
+
+  // --- Group E ---
+  { id: "gE1", status: "completed", stage: "Group E", teamA: "Germany", teamB: "Curacao", score: "7 - 1", time: "FT", date: "Sun, Jun 14" },
+  { id: "gE2", status: "completed", stage: "Group E", teamA: "Ivory Coast", teamB: "Ecuador", score: "1 - 0", time: "FT", date: "Mon, Jun 15" },
+  { id: "gE3", status: "completed", stage: "Group E", teamA: "Germany", teamB: "Ivory Coast", score: "2 - 1", time: "FT", date: "Sun, Jun 21" },
+  { id: "gE4", status: "completed", stage: "Group E", teamA: "Ecuador", teamB: "Curacao", score: "0 - 0", time: "FT", date: "Sun, Jun 21" },
+  { id: "gE5", status: "completed", stage: "Group E", teamA: "Curacao", teamB: "Ivory Coast", score: "0 - 2", time: "FT", date: "Fri, Jun 26" },
+  { id: "gE6", status: "completed", stage: "Group E", teamA: "Ecuador", teamB: "Germany", score: "2 - 1", time: "FT", date: "Fri, Jun 26" },
+
+  // --- Group F ---
+  { id: "gF1", status: "completed", stage: "Group F", teamA: "Netherlands", teamB: "Japan", score: "2 - 2", time: "FT", date: "Mon, Jun 15" },
+  { id: "gF2", status: "completed", stage: "Group F", teamA: "Sweden", teamB: "Tunisia", score: "5 - 1", time: "FT", date: "Mon, Jun 15" },
+  { id: "gF3", status: "completed", stage: "Group F", teamA: "Netherlands", teamB: "Sweden", score: "5 - 1", time: "FT", date: "Sat, Jun 20" },
+  { id: "gF4", status: "completed", stage: "Group F", teamA: "Tunisia", teamB: "Japan", score: "0 - 4", time: "FT", date: "Sun, Jun 21" },
+  { id: "gF5", status: "completed", stage: "Group F", teamA: "Japan", teamB: "Sweden", score: "1 - 1", time: "FT", date: "Fri, Jun 26" },
+  { id: "gF6", status: "completed", stage: "Group F", teamA: "Tunisia", teamB: "Netherlands", score: "1 - 3", time: "FT", date: "Fri, Jun 26" },
+
+  // --- Group G ---
+  { id: "gG1", status: "completed", stage: "Group G", teamA: "Belgium", teamB: "Egypt", score: "1 - 1", time: "FT", date: "Tue, Jun 16" },
+  { id: "gG2", status: "completed", stage: "Group G", teamA: "Iran", teamB: "New Zealand", score: "2 - 2", time: "FT", date: "Tue, Jun 16" },
+  { id: "gG3", status: "completed", stage: "Group G", teamA: "Belgium", teamB: "Iran", score: "0 - 0", time: "FT", date: "Mon, Jun 22" },
+  { id: "gG4", status: "completed", stage: "Group G", teamA: "New Zealand", teamB: "Egypt", score: "1 - 3", time: "FT", date: "Mon, Jun 22" },
+  { id: "gG5", status: "completed", stage: "Group G", teamA: "Egypt", teamB: "Iran", score: "1 - 1", time: "FT", date: "Sat, Jun 27" },
+  { id: "gG6", status: "completed", stage: "Group G", teamA: "New Zealand", teamB: "Belgium", score: "1 - 5", time: "FT", date: "Sat, Jun 27" },
+
+  // --- Group H ---
+  { id: "gH1", status: "completed", stage: "Group H", teamA: "Spain", teamB: "Cape Verde", score: "0 - 0", time: "FT", date: "Mon, Jun 15" },
+  { id: "gH2", status: "completed", stage: "Group H", teamA: "Saudi Arabia", teamB: "Uruguay", score: "1 - 1", time: "FT", date: "Tue, Jun 16" },
+  { id: "gH3", status: "completed", stage: "Group H", teamA: "Spain", teamB: "Saudi Arabia", score: "4 - 0", time: "FT", date: "Sun, Jun 21" },
+  { id: "gH4", status: "completed", stage: "Group H", teamA: "Uruguay", teamB: "Cape Verde", score: "2 - 2", time: "FT", date: "Mon, Jun 22" },
+  { id: "gH5", status: "completed", stage: "Group H", teamA: "Uruguay", teamB: "Spain", score: "0 - 1", time: "FT", date: "Sat, Jun 27" },
+  { id: "gH6", status: "completed", stage: "Group H", teamA: "Cape Verde", teamB: "Saudi Arabia", score: "0 - 0", time: "FT", date: "Sat, Jun 27" },
+
+  // --- Group I ---
+  { id: "gI1", status: "completed", stage: "Group I", teamA: "France", teamB: "Senegal", score: "3 - 1", time: "FT", date: "Wed, Jun 17" },
+  { id: "gI2", status: "completed", stage: "Group I", teamA: "Iraq", teamB: "Norway", score: "1 - 4", time: "FT", date: "Wed, Jun 17" },
+  { id: "gI3", status: "completed", stage: "Group I", teamA: "France", teamB: "Iraq", score: "3 - 0", time: "FT", date: "Tue, Jun 23" },
+  { id: "gI4", status: "completed", stage: "Group I", teamA: "Norway", teamB: "Senegal", score: "3 - 2", time: "FT", date: "Tue, Jun 23" },
+  { id: "gI5", status: "completed", stage: "Group I", teamA: "Norway", teamB: "France", score: "1 - 4", time: "FT", date: "Sat, Jun 27" },
+  { id: "gI6", status: "completed", stage: "Group I", teamA: "Senegal", teamB: "Iraq", score: "5 - 0", time: "FT", date: "Sat, Jun 27" },
+
+  // --- Group J ---
+  { id: "gJ1", status: "completed", stage: "Group J", teamA: "Argentina", teamB: "Algeria", score: "3 - 0", time: "FT", date: "Wed, Jun 17" },
+  { id: "gJ2", status: "completed", stage: "Group J", teamA: "Austria", teamB: "Jordan", score: "3 - 1", time: "FT", date: "Wed, Jun 17" },
+  { id: "gJ3", status: "completed", stage: "Group J", teamA: "Argentina", teamB: "Austria", score: "2 - 0", time: "FT", date: "Mon, Jun 22" },
+  { id: "gJ4", status: "completed", stage: "Group J", teamA: "Jordan", teamB: "Algeria", score: "1 - 2", time: "FT", date: "Tue, Jun 23" },
+  { id: "gJ5", status: "completed", stage: "Group J", teamA: "Jordan", teamB: "Argentina", score: "1 - 3", time: "FT", date: "Sun, Jun 28" },
+  { id: "gJ6", status: "completed", stage: "Group J", teamA: "Algeria", teamB: "Austria", score: "3 - 3", time: "FT", date: "Sun, Jun 28" },
+
+  // --- Group K ---
+  { id: "gK1", status: "completed", stage: "Group K", teamA: "Portugal", teamB: "Congo DR", score: "1 - 1", time: "FT", date: "Wed, Jun 17" },
+  { id: "gK2", status: "completed", stage: "Group K", teamA: "Uzbekistan", teamB: "Colombia", score: "1 - 3", time: "FT", date: "Thu, Jun 18" },
+  { id: "gK3", status: "completed", stage: "Group K", teamA: "Portugal", teamB: "Uzbekistan", score: "5 - 0", time: "FT", date: "Tue, Jun 23" },
+  { id: "gK4", status: "completed", stage: "Group K", teamA: "Colombia", teamB: "Congo DR", score: "1 - 0", time: "FT", date: "Wed, Jun 24" },
+  { id: "gK5", status: "completed", stage: "Group K", teamA: "Congo DR", teamB: "Uzbekistan", score: "3 - 1", time: "FT", date: "Sun, Jun 28" },
+  { id: "gK6", status: "completed", stage: "Group K", teamA: "Colombia", teamB: "Portugal", score: "0 - 0", time: "FT", date: "Sun, Jun 28" },
+
+  // --- Group L ---
+  { id: "gL1", status: "completed", stage: "Group L", teamA: "England", teamB: "Croatia", score: "4 - 2", time: "FT", date: "Thu, Jun 18" },
+  { id: "gL2", status: "completed", stage: "Group L", teamA: "Ghana", teamB: "Panama", score: "1 - 0", time: "FT", date: "Thu, Jun 18" },
+  { id: "gL3", status: "completed", stage: "Group L", teamA: "England", teamB: "Ghana", score: "0 - 0", time: "FT", date: "Wed, Jun 24" },
+  { id: "gL4", status: "completed", stage: "Group L", teamA: "Panama", teamB: "Croatia", score: "0 - 1", time: "FT", date: "Wed, Jun 24" },
+  { id: "gL5", status: "completed", stage: "Group L", teamA: "Panama", teamB: "England", score: "0 - 2", time: "FT", date: "Sun, Jun 28" },
+  { id: "gL6", status: "completed", stage: "Group L", teamA: "Croatia", teamB: "Ghana", score: "2 - 1", time: "FT", date: "Sun, Jun 28" },
+
+  // --- Round of 32 ---
+  { id: "r32_1", status: "completed", stage: "Round of 32", teamA: "South Africa", teamB: "Canada", score: "0 - 1", time: "FT", date: "Mon, Jun 29" },
+  { id: "r32_2", status: "completed", stage: "Round of 32", teamA: "Brazil", teamB: "Japan", score: "2 - 1", time: "FT", date: "Mon, Jun 29" },
+  { id: "r32_3", status: "completed", stage: "Round of 32", teamA: "Germany", teamB: "Paraguay", score: "1 (3) - 1 (4)", time: "FT (PEN)", date: "Tue, Jun 30" },
+  { id: "r32_4", status: "completed", stage: "Round of 32", teamA: "Netherlands", teamB: "Morocco", score: "1 (2) - 1 (3)", time: "FT (PEN)", date: "Tue, Jun 30" },
+  { id: "r32_5", status: "completed", stage: "Round of 32", teamA: "Ivory Coast", teamB: "Norway", score: "1 - 2", time: "FT", date: "Tue, Jun 30" },
+  { id: "r32_6", status: "completed", stage: "Round of 32", teamA: "France", teamB: "Sweden", score: "3 - 0", time: "FT", date: "Wed, Jul 1" },
+  { id: "r32_7", status: "completed", stage: "Round of 32", teamA: "Mexico", teamB: "Ecuador", score: "2 - 0", time: "FT", date: "Wed, Jul 1" },
+  { id: "r32_8", status: "completed", stage: "Round of 32", teamA: "England", teamB: "Congo DR", score: "2 - 1", time: "FT", date: "Wed, Jul 1" },
+  { id: "r32_9", status: "completed", stage: "Round of 32", teamA: "Belgium", teamB: "Senegal", score: "3 - 2", time: "FT", date: "Thu, Jul 2" },
+  { id: "r32_10", status: "completed", stage: "Round of 32", teamA: "USA", teamB: "Bosnia and Herzegovina", score: "2 - 0", time: "FT", date: "Thu, Jul 2" },
+  { id: "r32_11", status: "completed", stage: "Round of 32", teamA: "Spain", teamB: "Austria", score: "3 - 0", time: "FT", date: "Fri, Jul 3" },
+  { id: "r32_12", status: "completed", stage: "Round of 32", teamA: "Portugal", teamB: "Croatia", score: "2 - 1", time: "FT", date: "Fri, Jul 3" },
+  { id: "r32_13", status: "completed", stage: "Round of 32", teamA: "Switzerland", teamB: "Algeria", score: "2 - 0", time: "FT", date: "Fri, Jul 3" },
+  { id: "r32_14", status: "completed", stage: "Round of 32", teamA: "Australia", teamB: "Egypt", score: "1 (2) - 1 (4)", time: "FT (PEN)", date: "Fri, Jul 3" },
+  { id: "r32_15", status: "completed", stage: "Round of 32", teamA: "Argentina", teamB: "Cape Verde", score: "3 - 2", time: "FT", date: "Sat, Jul 4" },
+  { id: "r32_16", status: "completed", stage: "Round of 32", teamA: "Colombia", teamB: "Ghana", score: "1 - 0", time: "FT", date: "Sat, Jul 4" },
+
+  // --- Round of 16 ---
+  { id: "r16_1", status: "completed", stage: "Round of 16", teamA: "Canada", teamB: "Morocco", score: "0 - 3", time: "FT", date: "Sat, Jul 4" },
+  { id: "r16_2", status: "completed", stage: "Round of 16", teamA: "Paraguay", teamB: "France", score: "0 - 1", time: "FT", date: "Sun, Jul 5" },
+  { id: "r16_3", status: "completed", stage: "Round of 16", teamA: "Brazil", teamB: "Norway", score: "1 - 2", time: "FT", date: "Mon, Jul 6" },
+  { id: "r16_4", status: "completed", stage: "Round of 16", teamA: "Mexico", teamB: "England", score: "2 - 3", time: "FT", date: "Mon, Jul 6" },
+  { id: "r16_5", status: "completed", stage: "Round of 16", teamA: "Portugal", teamB: "Spain", score: "0 - 1", time: "FT", date: "Tue, Jul 7" },
+  { id: "r16_6", status: "completed", stage: "Round of 16", teamA: "USA", teamB: "Belgium", score: "1 - 4", time: "FT", date: "Tue, Jul 7" },
+  { id: "r16_7", status: "completed", stage: "Round of 16", teamA: "Argentina", teamB: "Egypt", score: "3 - 2", time: "FT", date: "Tue, Jul 7" },
+  { id: "r16_8", status: "completed", stage: "Round of 16", teamA: "Switzerland", teamB: "Colombia", score: "0 (4) - 0 (3)", time: "FT (PEN)", date: "Wed, Jul 8" },
+
+  // --- Quarterfinals ---
+  { id: "qf_1", status: "completed", stage: "Quarterfinals", teamA: "France", teamB: "Morocco", score: "2 - 0", time: "FT", date: "Fri, Jul 10" },
+  { id: "qf_2", status: "completed", stage: "Quarterfinals", teamA: "Spain", teamB: "Belgium", score: "2 - 1", time: "FT", date: "Sat, Jul 11" },
+  { id: "qf_3", status: "completed", stage: "Quarterfinals", teamA: "Norway", teamB: "England", score: "1 - 2", time: "FT", date: "Sun, Jul 12" },
+  { id: "qf_4", status: "completed", stage: "Quarterfinals", teamA: "Argentina", teamB: "Switzerland", score: "3 - 1", time: "FT", date: "Sun, Jul 12" },
+
+  // --- Semifinals ---
+  { id: "sf_1", status: "completed", stage: "Semifinals", teamA: "France", teamB: "Spain", score: "0 - 2", time: "FT", date: "Wed, Jul 15" },
+  { id: "sf_2", status: "upcoming", stage: "Semifinals", teamA: "England", teamB: "Argentina", score: undefined, time: "12:30 AM", date: "Thu, Jul 16" },
+
+  // --- 3rd Place Play-off ---
+  { id: "tpo", status: "upcoming", stage: "3rd Place Play-off", teamA: "France", teamB: "TBD", score: undefined, time: "2:30 AM", date: "Sun, Jul 19" },
+
+  // --- Final ---
+  { id: "fin", status: "upcoming", stage: "Final", teamA: "Spain", teamB: "TBD", score: undefined, time: "12:30 AM", date: "Mon, Jul 20" }
 ];
+
+const MATCHES_DATA: Match[] = RAW_MATCHES.map(m => {
+  // Deterministic live stats generator for completed matches to enrich UI view
+  const isPenalties = m.score && m.score.includes('(');
+  const coreScore = isPenalties ? m.score!.replace(/\s*\(\d+\)\s*/g, '') : m.score;
+  const scoreParts = coreScore ? coreScore.split(' - ') : null;
+  const valA = scoreParts ? parseInt(scoreParts[0]) : 0;
+  const valB = scoreParts ? parseInt(scoreParts[1]) : 0;
+
+  return {
+    ...m,
+    status: m.status as 'live' | 'upcoming' | 'completed',
+    venue: getVenue(m.id, m.stage, m.teamA),
+    possession: m.score ? `${40 + Math.round((valA / (valA + valB + 1)) * 10 + Math.random() * 10)}% - ${60 - Math.round((valA / (valA + valB + 1)) * 10 + Math.random() * 10)}%` : undefined,
+    shots: m.score ? `${valA * 3 + 5 + Math.round(Math.random() * 5)} - ${valB * 3 + 3 + Math.round(Math.random() * 5)}` : undefined,
+    corners: m.score ? `${3 + valA + Math.round(Math.random() * 4)} - ${2 + valB + Math.round(Math.random() * 4)}` : undefined,
+    yellowCards: m.score ? `${Math.round(Math.random() * 3)} - ${Math.round(Math.random() * 4)}` : undefined,
+    redCards: m.score ? (Math.random() > 0.95 ? "1 - 0" : "0 - 0") : undefined
+  } as Match;
+});
 
 interface TournamentHubProps {
   isOpen: boolean;
@@ -536,6 +441,114 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [playersTab, setPlayersTab] = useState<'goals' | 'assists' | 'yellow' | 'red'>('goals');
   const [filterQualifiedOnly, setFilterQualifiedOnly] = useState(false);
+  const [matchStageFilter, setMatchStageFilter] = useState<string>('All');
+
+  // Filtered matches based on stage filter & search queries
+  const filteredMatches = useMemo(() => {
+    return MATCHES_DATA.filter(m => {
+      // Search query filter first
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesA = m.teamA.toLowerCase().includes(q);
+        const matchesB = m.teamB.toLowerCase().includes(q);
+        const matchesStage = m.stage.toLowerCase().includes(q);
+        const matchesVenue = m.venue.toLowerCase().includes(q);
+        if (!matchesA && !matchesB && !matchesStage && !matchesVenue) {
+          return false;
+        }
+      }
+      
+      // Stage filter
+      if (matchStageFilter === 'All') return true;
+      if (matchStageFilter === 'Groups') return m.stage.startsWith('Group');
+      if (matchStageFilter === 'R32') return m.stage === 'Round of 32';
+      if (matchStageFilter === 'R16') return m.stage === 'Round of 16';
+      if (matchStageFilter === 'QF') return m.stage === 'Quarterfinals';
+      if (matchStageFilter === 'SF/Finals') return ['Semifinals', '3rd Place Play-off', 'Final'].includes(m.stage);
+      return true;
+    });
+  }, [matchStageFilter, searchQuery]);
+
+  // Dynamically compute standings from MATCHES_DATA
+  const groups = useMemo<Group[]>(() => {
+    const standings: Record<string, Record<string, TeamStanding>> = {};
+    
+    // Setup initial structures
+    Object.entries(GROUP_TEAMS).forEach(([letter, teams]) => {
+      standings[letter] = {};
+      teams.forEach(name => {
+        standings[letter][name] = {
+          name,
+          mp: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0,
+          form: []
+        };
+      });
+    });
+
+    // Populate stats from MATCHES_DATA
+    MATCHES_DATA.forEach(match => {
+      if (match.status !== 'completed') return;
+      if (!match.stage.startsWith('Group')) return; // Only Group stage counts for standings
+      
+      const letter = match.stage.replace('Group ', '');
+      if (!standings[letter]) return;
+
+      const teamAStats = standings[letter][match.teamA];
+      const teamBStats = standings[letter][match.teamB];
+      if (!teamAStats || !teamBStats) return;
+
+      // Parse score "X - Y"
+      const scoreParts = match.score ? match.score.split(' - ') : null;
+      if (!scoreParts || scoreParts.length !== 2) return;
+
+      const gfA = parseInt(scoreParts[0].trim());
+      const gfB = parseInt(scoreParts[1].trim());
+
+      teamAStats.mp += 1;
+      teamBStats.mp += 1;
+      teamAStats.gf += gfA;
+      teamAStats.ga += gfB;
+      teamBStats.gf += gfB;
+      teamBStats.ga += gfA;
+      teamAStats.gd = teamAStats.gf - teamAStats.ga;
+      teamBStats.gd = teamBStats.gf - teamBStats.ga;
+
+      if (gfA > gfB) {
+        teamAStats.w += 1;
+        teamAStats.pts += 3;
+        teamBStats.l += 1;
+        teamAStats.form.push({ outcome: 'W', opponent: match.teamB, score: match.score || '', date: match.date });
+        teamBStats.form.push({ outcome: 'L', opponent: match.teamA, score: `${gfB} - ${gfA}`, date: match.date });
+      } else if (gfA < gfB) {
+        teamBStats.w += 1;
+        teamBStats.pts += 3;
+        teamAStats.l += 1;
+        teamAStats.form.push({ outcome: 'L', opponent: match.teamB, score: match.score || '', date: match.date });
+        teamBStats.form.push({ outcome: 'W', opponent: match.teamA, score: `${gfB} - ${gfA}`, date: match.date });
+      } else {
+        teamAStats.d += 1;
+        teamBStats.d += 1;
+        teamAStats.pts += 1;
+        teamBStats.pts += 1;
+        teamAStats.form.push({ outcome: 'D', opponent: match.teamB, score: match.score || '', date: match.date });
+        teamBStats.form.push({ outcome: 'D', opponent: match.teamA, score: match.score || '', date: match.date });
+      }
+    });
+
+    // Convert Record to list, sort teams, and return Group[]
+    return Object.entries(standings).map(([letter, teamMap]) => {
+      const sortedTeams = Object.values(teamMap).sort((a, b) => {
+        if (b.pts !== a.pts) return b.pts - a.pts;
+        if (b.gd !== a.gd) return b.gd - a.gd;
+        if (b.gf !== a.gf) return b.gf - a.gf;
+        return a.name.localeCompare(b.name);
+      });
+      return {
+        letter,
+        teams: sortedTeams
+      };
+    });
+  }, []);
 
   // Initialize/remember tab settings
   useEffect(() => {
@@ -543,9 +556,13 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
       if (defaultTab) {
         setActiveTab(defaultTab);
       } else {
-        const stored = localStorage.getItem('tournament_hub_last_tab');
-        if (stored && ['matches', 'news', 'standings', 'players', 'bracket'].includes(stored)) {
-          setActiveTab(stored as any);
+        try {
+          const stored = localStorage.getItem('tournament_hub_last_tab');
+          if (stored && ['matches', 'news', 'standings', 'players', 'bracket'].includes(stored)) {
+            setActiveTab(stored as any);
+          }
+        } catch (e) {
+          console.warn('localStorage is not accessible in TournamentHub:', e);
         }
       }
     }
@@ -553,7 +570,11 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
 
   useEffect(() => {
     if (isOpen) {
-      localStorage.setItem('tournament_hub_last_tab', activeTab);
+      try {
+        localStorage.setItem('tournament_hub_last_tab', activeTab);
+      } catch (e) {
+        console.warn('localStorage writing is not accessible in TournamentHub:', e);
+      }
     }
   }, [activeTab, isOpen]);
 
@@ -576,6 +597,30 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
     );
   };
 
+  const renderBracketMatch = (teamA: string, teamB: string, score: string | undefined, date: string, isCompleted: boolean, winner: string | null) => {
+    return (
+      <div className="bg-zinc-950/80 border border-zinc-900 rounded-xl p-2.5 space-y-1.5 w-[180px] text-left hover:border-zinc-800 transition-all shadow-md select-none shrink-0">
+        <p className="text-[8px] font-bold text-zinc-500 font-mono tracking-wider">{date}</p>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 min-w-0">
+              {renderFlag(teamA)}
+              <span className={`text-[11px] font-black truncate ${winner === teamA ? 'text-emerald-400 font-extrabold' : 'text-zinc-300'}`}>{teamA}</span>
+            </div>
+            {score && <span className="font-mono text-[10px] font-bold text-zinc-300 bg-zinc-900 px-1 rounded">{score.split(' - ')[0]}</span>}
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 min-w-0">
+              {renderFlag(teamB)}
+              <span className={`text-[11px] font-black truncate ${winner === teamB ? 'text-emerald-400 font-extrabold' : 'text-zinc-300'}`}>{teamB}</span>
+            </div>
+            {score && <span className="font-mono text-[10px] font-bold text-zinc-300 bg-zinc-900 px-1 rounded">{score.split(' - ')[1]}</span>}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const toggleGroupExpand = (letter: string) => {
     setExpandedGroups(prev => ({
       ...prev,
@@ -585,7 +630,7 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
 
   const expandAllGroups = () => {
     const next: Record<string, boolean> = {};
-    INITIAL_GROUPS.forEach(g => {
+    groups.forEach(g => {
       next[g.letter] = true;
     });
     setExpandedGroups(next);
@@ -597,12 +642,12 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
 
   // Memoized Filtered Standings
   const filteredGroups = useMemo(() => {
-    let result = INITIAL_GROUPS;
+    let result = groups;
 
     // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      result = INITIAL_GROUPS.map(g => {
+      result = groups.map(g => {
         // Match group letter or team names
         const matchesLetter = `group ${g.letter.toLowerCase()}`.includes(q);
         const filteredTeams = g.teams.filter(t => t.name.toLowerCase().includes(q));
@@ -632,7 +677,7 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
     }
 
     return result;
-  }, [searchQuery, filterQualifiedOnly]);
+  }, [groups, searchQuery, filterQualifiedOnly]);
 
   if (!isOpen) return null;
 
@@ -822,51 +867,79 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
                 </div>
               ) : (
                 // Matches List
-                <div className="space-y-3">
-                  {MATCHES_DATA.filter(m => {
-                    if (!searchQuery) return true;
-                    const q = searchQuery.toLowerCase();
-                    return m.teamA.toLowerCase().includes(q) || m.teamB.toLowerCase().includes(q) || m.venue.toLowerCase().includes(q);
-                  }).map(match => (
-                    <div 
-                      key={match.id}
-                      onClick={() => setSelectedMatch(match)}
-                      className="bg-zinc-900/30 border border-zinc-900 hover:border-zinc-800 p-4 rounded-xl cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all flex items-center justify-between gap-4"
-                    >
-                      <div className="space-y-1.5 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-1.5 h-1.5 rounded-full ${match.status === 'live' ? 'bg-red-500 animate-pulse' : match.status === 'completed' ? 'bg-emerald-500' : 'bg-zinc-600'}`}></span>
-                          <span className="text-[9px] font-mono font-bold uppercase text-zinc-500 tracking-wider">
-                            {match.status} • {match.venue.split(',')[0]}
-                          </span>
+                <div className="space-y-3.5">
+                  {/* Stage filter buttons row */}
+                  <div className="flex gap-1.5 overflow-x-auto pb-1.5 -mx-2 px-2 scrollbar-none shrink-0">
+                    {[
+                      { id: 'All', label: 'All' },
+                      { id: 'Groups', label: 'Groups' },
+                      { id: 'R32', label: 'R32' },
+                      { id: 'R16', label: 'R16' },
+                      { id: 'QF', label: 'QF' },
+                      { id: 'SF/Finals', label: 'SF/Final' }
+                    ].map(stage => (
+                      <button
+                        key={stage.id}
+                        onClick={() => setMatchStageFilter(stage.id)}
+                        className={`py-1 px-3.5 rounded-full text-[10px] font-bold shrink-0 border transition-all ${
+                          matchStageFilter === stage.id
+                            ? 'bg-zinc-100 text-black border-zinc-100'
+                            : 'bg-zinc-900/40 text-zinc-400 border-zinc-800/60 hover:text-zinc-200'
+                        }`}
+                      >
+                        {stage.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {filteredMatches.length > 0 ? (
+                      filteredMatches.map(match => (
+                        <div 
+                          key={match.id}
+                          onClick={() => setSelectedMatch(match)}
+                          className="bg-zinc-900/20 border border-zinc-900/50 hover:border-zinc-800/80 p-4 rounded-xl cursor-pointer hover:shadow-lg hover:scale-[1.01] transition-all flex items-center justify-between gap-4"
+                        >
+                          <div className="space-y-1.5 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-1.5 h-1.5 rounded-full ${match.status === 'live' ? 'bg-red-500 animate-pulse' : match.status === 'completed' ? 'bg-emerald-500' : 'bg-zinc-600'}`}></span>
+                              <span className="text-[9px] font-mono font-bold uppercase text-zinc-500 tracking-wider">
+                                {match.status} • {match.stage} • {match.date}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5">
+                                {renderFlag(match.teamA)}
+                                <span className="text-xs font-bold text-white">{match.teamA}</span>
+                              </div>
+                              <span className="text-[10px] text-zinc-500 font-bold px-1.5">vs</span>
+                              <div className="flex items-center gap-1.5 flex-row-reverse">
+                                {renderFlag(match.teamB)}
+                                <span className="text-xs font-bold text-white">{match.teamB}</span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="text-right shrink-0">
+                            {match.score ? (
+                              <div className="text-xs font-mono font-black text-emerald-400 bg-zinc-900/40 border border-zinc-800/60 px-2.5 py-1 rounded-lg">
+                                {match.score}
+                              </div>
+                            ) : (
+                              <div className="text-[9px] text-zinc-400 font-semibold font-mono bg-zinc-900/30 px-2 py-0.5 rounded border border-zinc-900">
+                                Upcoming
+                              </div>
+                            )}
+                            <p className="text-[9px] text-zinc-500 font-bold mt-1 tracking-wider font-mono">{match.time.split(' ')[0]}</p>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1.5">
-                            {renderFlag(match.teamA)}
-                            <span className="text-xs font-bold text-white">{match.teamA}</span>
-                          </div>
-                          <span className="text-[10px] text-zinc-500 font-bold px-1.5">vs</span>
-                          <div className="flex items-center gap-1.5 flex-row-reverse">
-                            {renderFlag(match.teamB)}
-                            <span className="text-xs font-bold text-white">{match.teamB}</span>
-                          </div>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-10 text-xs text-zinc-500 italic">
+                        No matches found matching this stage filter.
                       </div>
-                      
-                      <div className="text-right shrink-0">
-                        {match.score ? (
-                          <div className="text-sm font-mono font-black text-emerald-400 bg-zinc-900/60 border border-zinc-800 px-3 py-1 rounded-lg">
-                            {match.score}
-                          </div>
-                        ) : (
-                          <div className="text-[10px] text-zinc-400 font-semibold font-mono bg-zinc-900/40 px-2 py-1 rounded-lg border border-zinc-900">
-                            Upcoming
-                          </div>
-                        )}
-                        <p className="text-[9px] text-zinc-500 font-bold mt-1 tracking-wider font-mono">{match.time.split(' ')[0]}</p>
-                      </div>
-                    </div>
-                  ))}
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -1124,18 +1197,12 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
                       <div className="flex items-center gap-3">
                         {/* Avatar */}
                         <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
-                          {player.photo ? (
-                            <img 
-                              src={player.photo} 
-                              alt={player.name} 
-                              className="w-full h-full object-cover"
-                              referrerPolicy="no-referrer"
-                            />
-                          ) : (
-                            <span className="text-xs font-black text-zinc-500 uppercase">
-                              {player.name.charAt(0)}{player.name.split(' ').slice(-1)[0]?.charAt(0)}
-                            </span>
-                          )}
+                          <img 
+                            src={player.photo || defaultUserPhoto} 
+                            alt={player.name} 
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                          />
                         </div>
                         
                         <div className="space-y-0.5">
@@ -1171,39 +1238,69 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
           {/* TAB 5: BRACKET */}
           {activeTab === 'bracket' && (
             <div className="space-y-4">
-              <div className="bg-zinc-900/20 border border-zinc-900 p-4 rounded-xl space-y-4 text-center">
-                <Sparkles className="w-6 h-6 text-yellow-400 mx-auto animate-pulse" />
-                <div className="space-y-1">
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">Tournament Knockout Bracket</h3>
-                  <p className="text-[11px] text-zinc-400">AI predictions & live knockout stages tracking starts soon.</p>
+              <div className="bg-zinc-900/20 border border-zinc-900/60 p-4 rounded-2xl space-y-4">
+                <div className="flex items-center gap-2 justify-center">
+                  <Sparkles className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-xs font-black text-white uppercase tracking-widest">WORLD CUP KNOCKOUT BRACKET</h3>
                 </div>
-                
-                {/* Visual predicted Match bracket wireframe */}
-                <div className="grid grid-cols-3 gap-2.5 pt-3 text-[10px] font-mono uppercase tracking-wider text-left">
-                  <div className="space-y-4">
-                    <div className="p-2 bg-zinc-900 border border-zinc-850 rounded">
-                      <p className="text-zinc-500">QF 1</p>
-                      <p className="font-bold text-white">🇦🇷 ARG (3)</p>
-                      <p className="font-bold text-zinc-500">🇩🇪 GER (1)</p>
+                <p className="text-[10px] text-zinc-400 text-center max-w-sm mx-auto">
+                  Follow the live road to the final. Drag or scroll horizontally to browse from Round of 16 to the Championship match.
+                </p>
+
+                {/* Horizontal visual bracket layout */}
+                <div className="overflow-x-auto pb-4 -mx-4 px-4 scrollbar-thin scrollbar-thumb-zinc-850">
+                  <div className="flex gap-8 min-w-[840px] py-4 h-[780px]">
+                    
+                    {/* COLUMN 1: ROUND OF 16 */}
+                    <div className="flex-1 flex flex-col justify-around h-full">
+                      <div className="text-[9px] font-black text-zinc-500 uppercase tracking-widest text-center border-b border-zinc-900/80 pb-1 mb-2">Round of 16</div>
+                      {renderBracketMatch("Canada", "Morocco", "0 - 3", "Sat, Jul 4", true, "Morocco")}
+                      {renderBracketMatch("Paraguay", "France", "0 - 1", "Sun, Jul 5", true, "France")}
+                      {renderBracketMatch("Portugal", "Spain", "0 - 1", "Tue, Jul 7", true, "Spain")}
+                      {renderBracketMatch("USA", "Belgium", "1 - 4", "Tue, Jul 7", true, "Belgium")}
+                      {renderBracketMatch("Brazil", "Norway", "1 - 2", "Mon, Jul 6", true, "Norway")}
+                      {renderBracketMatch("Mexico", "England", "2 - 3", "Mon, Jul 6", true, "England")}
+                      {renderBracketMatch("Argentina", "Egypt", "3 - 2", "Tue, Jul 7", true, "Argentina")}
+                      {renderBracketMatch("Switzerland", "Colombia", "0 (4) - 0 (3)", "Wed, Jul 8", true, "Switzerland")}
                     </div>
-                    <div className="p-2 bg-zinc-900 border border-zinc-850 rounded">
-                      <p className="text-zinc-500">QF 2</p>
-                      <p className="font-bold text-white">🇧🇷 BRA (2)</p>
-                      <p className="font-bold text-zinc-500">🇪🇸 ESP (0)</p>
+
+                    {/* COLUMN 2: QUARTERFINALS */}
+                    <div className="flex-1 flex flex-col justify-around h-full">
+                      <div className="text-[9px] font-black text-zinc-500 uppercase tracking-widest text-center border-b border-zinc-900/80 pb-1 mb-2">Quarterfinals</div>
+                      {renderBracketMatch("France", "Morocco", "2 - 0", "Fri, Jul 10", true, "France")}
+                      {renderBracketMatch("Spain", "Belgium", "2 - 1", "Sat, Jul 11", true, "Spain")}
+                      {renderBracketMatch("Norway", "England", "1 - 2", "Sun, Jul 12", true, "England")}
+                      {renderBracketMatch("Argentina", "Switzerland", "3 - 1", "Sun, Jul 12", true, "Argentina")}
                     </div>
-                  </div>
-                  <div className="flex flex-col justify-center space-y-8">
-                    <div className="p-2 bg-zinc-900/80 border border-emerald-500/30 rounded shadow-[0_0_15px_rgba(34,197,94,0.05)]">
-                      <p className="text-emerald-400 font-bold">SF 1</p>
-                      <p className="font-bold text-white">🇦🇷 ARG</p>
-                      <p className="font-bold text-white">🇧🇷 BRA</p>
+
+                    {/* COLUMN 3: SEMIFINALS */}
+                    <div className="flex-1 flex flex-col justify-around h-full">
+                      <div className="text-[9px] font-black text-zinc-500 uppercase tracking-widest text-center border-b border-zinc-900/80 pb-1 mb-2">Semifinals</div>
+                      {renderBracketMatch("France", "Spain", "0 - 2", "Wed, Jul 15", true, "Spain")}
+                      {renderBracketMatch("England", "Argentina", undefined, "Thu, Jul 16", false, null)}
                     </div>
-                  </div>
-                  <div className="flex flex-col justify-center">
-                    <div className="p-2 bg-emerald-500/10 border-2 border-emerald-500/40 rounded text-center">
-                      <p className="text-[8px] font-black text-emerald-400 tracking-widest">CHAMPION PREDICTION</p>
-                      <p className="font-black text-white text-xs mt-1">🇦🇷 ARGENTINA</p>
+
+                    {/* COLUMN 4: FINAL & CHAMPION */}
+                    <div className="flex-1 flex flex-col justify-around h-full">
+                      <div className="text-[9px] font-black text-zinc-500 uppercase tracking-widest text-center border-b border-zinc-900/80 pb-1 mb-2">Final</div>
+                      
+                      <div className="space-y-6">
+                        {renderBracketMatch("Spain", "Winner SF 2", undefined, "Mon, Jul 20", false, null)}
+                        
+                        {/* CHAMPIONSHIP PROJECTION / DISPLAY CARD */}
+                        <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl text-center space-y-2.5 shadow-2xl relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent"></div>
+                          <Trophy className="w-7 h-7 text-yellow-400 mx-auto animate-bounce" />
+                          <div className="space-y-0.5">
+                            <p className="text-[8px] font-black text-emerald-400 tracking-widest uppercase">CHAMPIONS TROPHY</p>
+                            <p className="text-[11px] font-bold text-zinc-200">GRAND FINALE</p>
+                            <p className="text-[9px] font-mono font-bold text-zinc-500 mt-1">20 JULY 2026</p>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
+
                   </div>
                 </div>
               </div>

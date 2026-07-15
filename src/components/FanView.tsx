@@ -40,6 +40,7 @@ import {
 import messiKissingTrophy from '../assets/images/messi_kissing_trophy_1783343437487.jpg';
 import ronaldoTunnelCrying from '../assets/images/ronaldo_tunnel_crying_1783343479370.jpg';
 import neymarBrazilFocus from '../assets/images/neymar_brazil_focus_1783343496361.jpg';
+import argentina2022WcPhoto from '../assets/images/argentina_2022_wc_1784115847868.jpg';
 import TournamentHub from './TournamentHub';
 
 interface FanViewProps {
@@ -101,7 +102,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
   useEffect(() => {
     if (accessibilityMode) return;
     const interval = setInterval(() => {
-      setHeroSlide((prev) => (prev + 1) % 3);
+      setHeroSlide((prev) => (prev + 1) % 4);
     }, 7000);
     return () => clearInterval(interval);
   }, [accessibilityMode]);
@@ -111,10 +112,19 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
 
   // 1. Initialize sessionUserId and fetch/create Score doc
   useEffect(() => {
-    let uId = localStorage.getItem('stadiumpulse_session_uid');
+    let uId: string | null = null;
+    try {
+      uId = localStorage.getItem('stadiumpulse_session_uid');
+    } catch (e) {
+      console.warn('localStorage is not accessible:', e);
+    }
     if (!uId) {
       uId = 'fan_' + Math.random().toString(36).substring(2, 11);
-      localStorage.setItem('stadiumpulse_session_uid', uId);
+      try {
+        localStorage.setItem('stadiumpulse_session_uid', uId);
+      } catch (e) {
+        console.warn('localStorage writing is not accessible:', e);
+      }
     }
     setSessionUserId(uId);
 
@@ -186,7 +196,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           setCrowdRecommendation(data.reply);
         }
       } catch (err) {
-        console.error('Error generating crowd recommendation:', err);
+        console.warn('Error generating crowd recommendation:', err);
       } finally {
         setIsCrowdLoading(false);
       }
@@ -325,7 +335,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
         throw new Error(data.error || 'Failed to get chat response.');
       }
     } catch (error: any) {
-      console.error(error);
+      console.warn(error);
       setChatMessages(prev => [...prev, {
         id: 'error_' + Date.now(),
         sender: 'assistant',
@@ -420,7 +430,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           throw new Error(data.error || 'Failed to classify.');
         }
       } catch (err: any) {
-        console.error(err);
+        console.warn(err);
         setScanMessage('Failed to scan item. Please check your image and try again.');
       } finally {
         setIsClassifying(false);
@@ -540,6 +550,18 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
               flagA: "🇧🇷",
               flagB: "🇩🇪",
               color: "from-emerald-600/10"
+            },
+            {
+              id: 3,
+              image: argentina2022WcPhoto,
+              match: "ARG vs FRA • 2022 WORLD CUP CHAMPIONS",
+              score: "3(4) - 3(2)",
+              time: "HISTORIC FINALE",
+              teamA: "ARG",
+              teamB: "FRA",
+              flagA: "🇦🇷",
+              flagB: "🇫🇷",
+              color: "from-amber-600/10"
             }
           ].map((slide, idx) => (
             <div 
@@ -624,7 +646,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           {/* DOTS CONTROLS */}
           <div className="relative z-10 flex items-center justify-between gap-4 border-t border-slate-800/40 pt-4 mt-auto">
             <div className="flex gap-2">
-              {[0, 1, 2].map((idx) => (
+              {[0, 1, 2, 3].map((idx) => (
                 <button
                   key={idx}
                   onClick={() => setHeroSlide(idx)}

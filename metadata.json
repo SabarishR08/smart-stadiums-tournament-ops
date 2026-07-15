@@ -1,6 +1,6 @@
 {
-  "name": "",
-  "description": "",
-  "requestFramePermissions": [],
+  "name": "StadiumPulse AI",
+  "description": "FIFA World Cup 2026 Smart Stadium Companion offering automated crowd wayfinding, eco-friendly garbage sorting, and operational concierge services.",
+  "requestFramePermissions": ["microphone", "camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

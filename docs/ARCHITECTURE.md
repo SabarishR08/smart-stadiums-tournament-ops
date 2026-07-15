@@ -40,7 +40,7 @@ StadiumPulse AI utilizes a high-efficiency full-stack layout consisting of a **R
           ▼                                     ▼
 ┌──────────────────┐                  ┌──────────────────┐
 │ Google Gemini    │                  │ Client Storage / │
-│ 2.5 Flash LLM    │                  │ Persistent DB    │
+│ 3.5 Flash LLM    │                  │ Persistent DB    │
 └──────────────────┘                  └──────────────────┘
 ```
 

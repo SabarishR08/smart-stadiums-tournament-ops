@@ -38,7 +38,7 @@ StadiumPulse AI is structured around a highly optimized full-stack design consis
           ▼                                     ▼
 ┌──────────────────┐                  ┌──────────────────┐
 │ Google Gemini    │                  │ Client Storage / │
-│ 2.5 Flash LLM    │                  │ Persistent DB    │
+│ 3.5 Flash LLM    │                  │ Persistent DB    │
 └──────────────────┘                  └──────────────────┘
 ```
 
@@ -47,7 +47,7 @@ StadiumPulse AI is structured around a highly optimized full-stack design consis
 ## 🚀 Key Features
 
 ### 📣 Public Fan View
-1. **Multilingual AI Concierge Chat**: Conversational companion powered by server-side Gemini 2.5. Automatically detects language and replies instantly in English, Spanish, French, Arabic, Hindi, or Portuguese.
+1. **Multilingual AI Concierge Chat**: Conversational companion powered by server-side Gemini 3.5. Automatically detects language and replies instantly in English, Spanish, French, Arabic, Hindi, or Portuguese.
 2. **Accessible Voice Mode**: One-touch Speech-to-Text inputs and automatic Text-to-Speech vocal output for eyes-free navigation.
 3. **Interactive Wayfinding Map**: Responsive vector SVG diagram of sections A-Z detailing nearest gates, restrooms, and accessible ADA entry points.
 4. **Live Crowd Status Grid**: Real-time traffic reports pulled from Firestore, integrated with a debounced 15-second Gemini routing recommendation to bypass stadium congestion.

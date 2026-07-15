@@ -23,22 +23,13 @@ import {
   writeBatch
 } from 'firebase/firestore';
 import { ZoneStatus, TransportationStatus } from '../types';
-
-// Inlined from firebase-applet-config.json for maximum reliability
-const firebaseConfig = {
-  apiKey: "AIzaSyDL9P1r37CQxqVjGb7DHTbWKZ2UzrZ-mQ0",
-  authDomain: "gen-lang-client-0639363380.firebaseapp.com",
-  projectId: "gen-lang-client-0639363380",
-  storageBucket: "gen-lang-client-0639363380.firebasestorage.app",
-  messagingSenderId: "139690074983",
-  appId: "1:139690074983:web:48da630f90897f104905c2"
-};
+import firebaseConfig from '../../firebase-applet-config.json';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firestore specifying the databaseId from our config
-export const db = getFirestore(app, "ai-studio-605ea102-90d9-41ca-940e-737ad40bc9d4");
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 
 export enum OperationType {

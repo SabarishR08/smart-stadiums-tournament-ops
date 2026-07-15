@@ -215,6 +215,114 @@ function isGeminiConfigured(): boolean {
   return !!process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'MY_GEMINI_API_KEY';
 }
 
+// Robust fallback generators for all endpoints to handle quota or credential issues gracefully
+function getMockChatResponse(sanitizedMessage: string) {
+  const msgLower = sanitizedMessage.toLowerCase();
+  let reply = "Hello! I am your StadiumPulse AI Concierge. I can guide you with seat finding, gate directions, restroom/food locations, and match schedules. (Running in Smart Offline Fallback Mode)";
+  
+  if (msgLower.includes('baño') || msgLower.includes('sanitario') || msgLower.includes('restroom') || msgLower.includes('toilet')) {
+    reply = "Nearest restrooms are located near Gate A, B, C, and D. Accessible restrooms are fully operational at Gate D. Restroom lines are currently low in Section K.";
+  } else if (msgLower.includes('comida') || msgLower.includes('food') || msgLower.includes('comer') || msgLower.includes('hamburguesa')) {
+    reply = "Food courts are located on Level 1 Concourse and Level 3 Concourse. There are Tacos, Burgers, and vegetarian options near Section F.";
+  } else if (msgLower.includes('gate') || msgLower.includes('puerta') || msgLower.includes('entrada')) {
+    reply = "Gate A is North Entrance. Gate B is East Entrance (currently congested, try Gate C!). Gate D is accessible West entrance.";
+  }
+
+  // Echo language detection
+  let detectedLang = 'en';
+  if (/[\u0600-\u06FF]/.test(sanitizedMessage)) detectedLang = 'ar';
+  else if (/[\u0900-\u097F]/.test(sanitizedMessage)) detectedLang = 'hi';
+  else if (msgLower.includes('hola') || msgLower.includes('gracias') || msgLower.includes('dónde')) {
+    detectedLang = 'es';
+    reply = "¡Hola! Los baños más cercanos están cerca de la Puerta A, B, C y D. Los sanitarios accesibles están en la Puerta D. (Modo fuera de línea)";
+  } else if (msgLower.includes('bonjour') || msgLower.includes('merci') || msgLower.includes('où')) {
+    detectedLang = 'fr';
+    reply = "Bonjour! Les toilettes les plus proches sont situées près des portes A, B, C et D. Des toilettes accessibles sont disponibles à la porte D. (Mode hors ligne)";
+  } else if (msgLower.includes('olá') || msgLower.includes('obrigado') || msgLower.includes('onde')) {
+    detectedLang = 'pt';
+    reply = "Olá! Os banheiros mais próximos estão localizados perto do Portão A, B, C e D. Banheiros acessíveis estão no Portão D. (Modo offline)";
+  }
+
+  return { reply, detectedLanguage: detectedLang, isFallback: true };
+}
+
+function getMockClassifyItemResponse() {
+  const categories = ['recyclable', 'compostable', 'landfill'];
+  const mockCategory = categories[Math.floor(Math.random() * categories.length)];
+  let bin = 'Blue Recycling Bin';
+  let explanation = 'This is plastic/aluminum which belongs in recycling.';
+  let scoreAwarded = 10;
+
+  if (mockCategory === 'compostable') {
+    bin = 'Green Compost Bin';
+    explanation = 'Organic packaging or food waste is fully compostable.';
+    scoreAwarded = 15;
+  } else if (mockCategory === 'landfill') {
+    bin = 'Black Trash Bin';
+    explanation = 'Waxed cups or multi-layer wrappers belong in general waste.';
+    scoreAwarded = 5;
+  }
+
+  return {
+    itemName: 'Stadium Food Container (Smart Offline Fallback Mode)',
+    category: mockCategory,
+    correctBin: bin,
+    explanation,
+    scoreAwarded,
+    isFallback: true
+  };
+}
+
+function getMockDecisionSupportResponse(situation: string) {
+  const mockDecisions = [
+    {
+      rank: 1,
+      action: 'Reroute incoming fans via South Gate (Gate C) [Fallback Mode]',
+      reasoning: `Heavy volume or issue detected. Rerouting scenario: "${situation}". South Gate (Gate C) is currently clear with under 5-minute wait times.`
+    },
+    {
+      rank: 2,
+      action: 'Deploy secondary steward team to Gate B [Fallback Mode]',
+      reasoning: 'Providing physical support to check tickets and guide crowds will ease barrier pressure.'
+    },
+    {
+      rank: 3,
+      action: 'Issue mobile-app push notifications for Gate C entry [Fallback Mode]',
+      reasoning: 'Gently shifts inbound fans away from overcrowded entries proactively.'
+    }
+  ];
+  return { recommendations: mockDecisions, isFallback: true };
+}
+
+function getMockBroadcastResponse(originalText: string) {
+  const tText = originalText.toLowerCase();
+  let es = "Atención por favor: Siga las instrucciones del personal de seguridad. (Traducción de respaldo)";
+  let fr = "Attention s'il vous plaît: Veuillez suivre les instructions des commissaires. (Traduction de secours)";
+  let ar = "تنبيه من فضلك: يرجى اتباع تعليمات مشرفي الأمن. (ترجمة احتياطية)";
+  let hi = "कृपया ध्यान दें: कृपया सुरक्षा कर्मचारियों के निर्देशों का पालन करें। (बैकअप अनुवाद)";
+  let pt = "Atenção por favor: Siga as instruções da equipe de segurança. (Tradução de backup)";
+
+  if (tText.includes('gate') || tText.includes('puerta') || tText.includes('crowd')) {
+    es = "Por favor, diríjase a la Puerta C para ingresar más rápido. La Puerta B está actualmente congestionada. (Traducción de respaldo)";
+    fr = "Veuillez vous diriger vers la porte C pour une entrée plus rapide. La porte B est actuellement encombrée. (Traduction de secours)";
+    ar = "يرجى التوجه إلى البوابة C لتسهيل الدخول. البوابة B مزدحمة حالياً. (ترجمة احتياطية)";
+    hi = "कृपया तेजी से प्रवेश के लिए गेट सी की ओर जाएं। गेट बी वर्तमान में व्यस्त है। (बैकअप अनुवाद)";
+    pt = "Por favor, dirija-se ao Portão C para entrada mais rápida. O Portão B está congestionado. (Tradução de backup)";
+  }
+
+  return {
+    translations: {
+      en: originalText,
+      es,
+      fr,
+      ar,
+      hi,
+      pt
+    },
+    isFallback: true
+  };
+}
+
 /**
  * 1. MULTILINGUAL CHAT CONCIERGE
  * Detects input language automatically and replies in that language.
@@ -253,34 +361,7 @@ app.post('/api/chat', async (req, res) => {
     }
 
     if (!isGeminiConfigured()) {
-      // High-quality mock responses in multiple languages for standard stadium questions
-      const msgLower = sanitizedMessage.toLowerCase();
-      let reply = "Hello! I am your StadiumPulse AI Concierge. I can guide you with seat finding, gate directions, restroom/food locations, and match schedules. Please make sure to add your GEMINI_API_KEY for active live generation!";
-      
-      if (msgLower.includes('baño') || msgLower.includes('sanitario') || msgLower.includes('restroom') || msgLower.includes('toilet')) {
-        reply = "Nearest restrooms are located near Gate A, B, C, and D. Accessible restrooms are fully operational at Gate D. Restroom lines are currently low in Section K.";
-      } else if (msgLower.includes('comida') || msgLower.includes('food') || msgLower.includes('comer') || msgLower.includes('hamburguesa')) {
-        reply = "Food courts are located on Level 1 Concourse and Level 3 Concourse. There are Tacos, Burgers, and vegetarian options near Section F.";
-      } else if (msgLower.includes('gate') || msgLower.includes('puerta') || msgLower.includes('entrada')) {
-        reply = "Gate A is North Entrance. Gate B is East Entrance (currently congested, try Gate C!). Gate D is accessible West entrance.";
-      }
-
-      // Echo language detection
-      let detectedLang = 'en';
-      if (/[\u0600-\u06FF]/.test(sanitizedMessage)) detectedLang = 'ar';
-      else if (/[\u0900-\u097F]/.test(sanitizedMessage)) detectedLang = 'hi';
-      else if (msgLower.includes('hola') || msgLower.includes('gracias') || msgLower.includes('dónde')) {
-        detectedLang = 'es';
-        reply = "¡Hola! Los baños más cercanos están cerca de la Puerta A, B, C y D. Los sanitarios accesibles están en la Puerta D. ¡Que disfrute del partido!";
-      } else if (msgLower.includes('bonjour') || msgLower.includes('merci') || msgLower.includes('où')) {
-        detectedLang = 'fr';
-        reply = "Bonjour! Les toilettes les plus proches sont situées près des portes A, B, C et D. Des toilettes accessibles sont disponibles à la porte D.";
-      } else if (msgLower.includes('olá') || msgLower.includes('obrigado') || msgLower.includes('onde')) {
-        detectedLang = 'pt';
-        reply = "Olá! Os banheiros mais próximos estão localizados perto do Portão A, B, C e D. Banheiros acessíveis estão no Portão D.";
-      }
-
-      const mockResponse = { reply, detectedLanguage: detectedLang };
+      const mockResponse = getMockChatResponse(sanitizedMessage);
       queryCache[cacheKey] = { response: mockResponse, timestamp: Date.now() };
       res.json(mockResponse);
       return;
@@ -320,7 +401,7 @@ Return a JSON string matching this structure:
     const contentPrompt = `${systemPrompt}\n\nChat History:\n${formattedHistory}\n\nUser Message: ${sanitizedMessage}\n\nReturn the JSON object directly. Do not include markdown code block formatting.`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.5-flash',
       contents: contentPrompt,
       config: {
         responseMimeType: 'application/json'
@@ -341,8 +422,13 @@ Return a JSON string matching this structure:
     res.json(parsed);
 
   } catch (error: any) {
-    console.error('Error in chat API:', error);
-    res.status(500).json({ error: 'Failed to generate concierge response.' });
+    console.warn('Error in chat API, falling back to smart mock response:', error);
+    try {
+      const fallbackResponse = getMockChatResponse(req.body.message || '');
+      res.json(fallbackResponse);
+    } catch (fallbackError) {
+      res.status(500).json({ error: 'Failed to generate concierge response.' });
+    }
   }
 });
 
@@ -365,30 +451,8 @@ app.post('/api/classify-item', async (req, res) => {
     }
 
     if (!isGeminiConfigured()) {
-      // Mock classifier response
-      const categories = ['recyclable', 'compostable', 'landfill'];
-      const mockCategory = categories[Math.floor(Math.random() * categories.length)];
-      let bin = 'Blue Recycling Bin';
-      let explanation = 'This is plastic/aluminum which belongs in recycling.';
-      let scoreAwarded = 10;
-
-      if (mockCategory === 'compostable') {
-        bin = 'Green Compost Bin';
-        explanation = 'Organic packaging or food waste is fully compostable.';
-        scoreAwarded = 15;
-      } else if (mockCategory === 'landfill') {
-        bin = 'Black Trash Bin';
-        explanation = 'Waxed cups or multi-layer wrappers belong in general waste.';
-        scoreAwarded = 5;
-      }
-
-      res.json({
-        itemName: 'Stadium Food Container (Mock Mode)',
-        category: mockCategory,
-        correctBin: bin,
-        explanation: `${explanation} (Configure GEMINI_API_KEY for active vision classification!)`,
-        scoreAwarded
-      });
+      const mockResponse = getMockClassifyItemResponse();
+      res.json(mockResponse);
       return;
     }
 
@@ -414,7 +478,7 @@ Return JSON format:
 }`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.5-flash',
       contents: [
         visionPrompt,
         {
@@ -441,8 +505,13 @@ Return JSON format:
     res.json(parsed);
 
   } catch (error: any) {
-    console.error('Error in Vision classifier API:', error);
-    res.status(500).json({ error: 'Failed to classify item with Gemini Vision.' });
+    console.warn('Error in Vision classifier API, falling back to smart mock classification:', error);
+    try {
+      const fallbackResponse = getMockClassifyItemResponse();
+      res.json(fallbackResponse);
+    } catch (fallbackError) {
+      res.status(500).json({ error: 'Failed to classify item with Gemini Vision.' });
+    }
   }
 });
 
@@ -475,25 +544,8 @@ app.post('/api/decision-support', checkStaffRole, async (req, res) => {
     }
 
     if (!isGeminiConfigured()) {
-      // Mock tactical decision
-      const mockDecisions = [
-        {
-          rank: 1,
-          action: 'Reroute incoming fans via South Gate (Gate C)',
-          reasoning: 'Gate B is experiencing extremely heavy volume, and Gate C is currently clear with under 5-minute wait times.'
-        },
-        {
-          rank: 2,
-          action: 'Deploy secondary steward team to Gate B',
-          reasoning: 'Providing physical support to check tickets and guide crowds will ease barrier pressure.'
-        },
-        {
-          rank: 3,
-          action: 'Issue mobile-app push notifications for Gate C entry',
-          reasoning: 'Gently shifts inbound fans away from overcrowded entries proactively.'
-        }
-      ];
-      res.json({ recommendations: mockDecisions });
+      const mockResponse = getMockDecisionSupportResponse(sanitizedSituation);
+      res.json(mockResponse);
       return;
     }
 
@@ -518,7 +570,7 @@ Return JSON format:
 }`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.5-flash',
       contents: decisionPrompt,
       config: {
         responseMimeType: 'application/json'
@@ -537,8 +589,13 @@ Return JSON format:
     res.json(parsed);
 
   } catch (error: any) {
-    console.error('Error in decision support API:', error);
-    res.status(500).json({ error: 'Failed to generate operational decision advice.' });
+    console.warn('Error in decision support API, falling back to smart mock guidelines:', error);
+    try {
+      const fallbackResponse = getMockDecisionSupportResponse(req.body.situation || '');
+      res.json(fallbackResponse);
+    } catch (fallbackError) {
+      res.status(500).json({ error: 'Failed to generate operational decision advice.' });
+    }
   }
 });
 
@@ -571,32 +628,8 @@ app.post('/api/broadcast', checkStaffRole, async (req, res) => {
     }
 
     if (!isGeminiConfigured()) {
-      // High-quality static/mock translations
-      const tText = sanitizedBroadcast.toLowerCase();
-      let es = "Atención por favor: Siga las instrucciones del personal de seguridad.";
-      let fr = "Attention s'il vous plaît: Veuillez suivre les instructions des commissaires.";
-      let ar = "تنبيه من فضلك: يرجى اتباع تعليمات مشرفي الأمن.";
-      let hi = "कृपया ध्यान दें: कृपया सुरक्षा कर्मचारियों के निर्देशों का पालन करें।";
-      let pt = "Atenção por favor: Siga as instruções da equipe de segurança.";
-
-      if (tText.includes('gate') || tText.includes('puerta') || tText.includes('crowd')) {
-        es = "Por favor, diríjase a la Puerta C para ingresar más rápido. La Puerta B está actualmente congestionada.";
-        fr = "Veuillez vous diriger vers la porte C pour une entrée plus rapide. La porte B est actuellement encombrée.";
-        ar = "يرجى التوجه إلى البوابة C لتسهيل الدخول. البوابة B مزدحمة حالياً.";
-        hi = "कृपया तेजी से प्रवेश के लिए गेट सी की ओर जाएं। गेट बी वर्तमान में व्यस्त है।";
-        pt = "Por favor, dirija-se ao Portão C para entrada mais rápida. O Portão B está congestionado.";
-      }
-
-      res.json({
-        translations: {
-          en: sanitizedBroadcast,
-          es,
-          fr,
-          ar,
-          hi,
-          pt
-        }
-      });
+      const mockResponse = getMockBroadcastResponse(sanitizedBroadcast);
+      res.json(mockResponse);
       return;
     }
 
@@ -620,7 +653,7 @@ Return JSON format:
 }`;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.5-flash',
       contents: translationPrompt,
       config: {
         responseMimeType: 'application/json'
@@ -639,8 +672,13 @@ Return JSON format:
     res.json(parsed);
 
   } catch (error: any) {
-    console.error('Error in translation broadcast API:', error);
-    res.status(500).json({ error: 'Failed to translate announcement.' });
+    console.warn('Error in translation broadcast API, falling back to smart mock translations:', error);
+    try {
+      const fallbackResponse = getMockBroadcastResponse(req.body.originalText || '');
+      res.json(fallbackResponse);
+    } catch (fallbackError) {
+      res.status(500).json({ error: 'Failed to translate announcement.' });
+    }
   }
 });
 
