@@ -212,6 +212,11 @@ export default function MapSVG({ onSectionSelect, selectedSection }: MapSVGProps
           <span>Selected Section</span>
         </div>
       </div>
+
+      {/* Simple Instruction Text */}
+      <p className="text-center text-xs text-slate-400 mt-3 relative z-10">
+        Tap any section on the stadium circle map above to inspect route exits & services instantly.
+      </p>
     </div>
   );
 }
