@@ -671,7 +671,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
         <div className="lg:col-span-7 space-y-6">
           
           {/* A. MAP & WAYFINDING */}
-          <section className={cardClasses} aria-label="Wayfinding & Stadium Map">
+          <section className={`${cardClasses} flex flex-col h-[520px]`} aria-label="Wayfinding & Stadium Map">
             <h2 className={headingSize}>
               <QrCode className="w-5 h-5 inline-block text-zinc-400" />
               <span>Wayfinding & Gate Locator</span>
@@ -719,8 +719,8 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-4 text-slate-400 text-sm flex flex-col items-center gap-1">
-                  <HelpCircle className="w-5 h-5 text-slate-500" />
+                <div className="text-center py-2 text-slate-400 text-xs flex flex-col items-center gap-1">
+                  <HelpCircle className="w-4 h-4 text-slate-500" />
                   <p>Tap any section on the stadium circle map above to inspect route exits & services instantly.</p>
                 </div>
               )}
