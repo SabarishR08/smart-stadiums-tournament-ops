@@ -913,6 +913,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
             <div 
               className={`flex-1 overflow-y-auto p-3 space-y-3 rounded-xl mb-3 ${accessibilityMode ? 'border-2 border-white' : 'bg-zinc-950/40 border border-zinc-900/60'}`}
               role="log"
+              aria-live="polite"
               aria-label="Concierge Chat logs"
             >
               {chatMessages.map((msg) => (

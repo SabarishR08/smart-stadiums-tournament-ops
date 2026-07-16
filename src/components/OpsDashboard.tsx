@@ -505,6 +505,7 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
         <button
           onClick={handleSignOut}
           className="bg-zinc-900 border border-zinc-800/80 hover:bg-zinc-800 text-zinc-300 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 focus:ring-2 focus:ring-red-500"
+          aria-label="Sign out from operations dashboard"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Exit Hub</span>
@@ -525,11 +526,13 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
 
             <form onSubmit={handleLogIncident} className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-6">
               <div className="sm:col-span-3">
-                <label className={labelClasses}>Type</label>
+                <label htmlFor="incident-type-select" className={labelClasses}>Type</label>
                 <select 
+                  id="incident-type-select"
                   value={incType} 
                   onChange={(e: any) => setIncType(e.target.value)}
                   className={`w-full mt-1 ${inputClasses} text-slate-300`}
+                  aria-label="Incident type"
                 >
                   <option value="security">Security</option>
                   <option value="medical">Medical</option>
@@ -540,11 +543,13 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
               </div>
 
               <div className="sm:col-span-3">
-                <label className={labelClasses}>Zone</label>
+                <label htmlFor="incident-zone-select" className={labelClasses}>Zone</label>
                 <select 
+                  id="incident-zone-select"
                   value={incZone} 
                   onChange={(e: any) => setIncZone(e.target.value)}
                   className={`w-full mt-1 ${inputClasses} text-slate-300`}
+                  aria-label="Incident zone or location"
                 >
                   <option value="Gate A">Gate A (North)</option>
                   <option value="Gate B">Gate B (East)</option>
@@ -556,11 +561,13 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
               </div>
 
               <div className="sm:col-span-3">
-                <label className={labelClasses}>Severity</label>
+                <label htmlFor="incident-severity-select" className={labelClasses}>Severity</label>
                 <select 
+                  id="incident-severity-select"
                   value={incSeverity} 
                   onChange={(e: any) => setIncSeverity(e.target.value)}
                   className={`w-full mt-1 ${inputClasses} text-slate-300`}
+                  aria-label="Incident severity level"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -576,11 +583,13 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
                   onChange={(e) => setIncNotes(e.target.value)}
                   placeholder="Describe the incident (e.g., ticket scanner offline, spill on concourse)"
                   className={`flex-1 ${inputClasses}`}
+                  aria-label="Incident description or notes"
                 />
                 <button
                   type="submit"
                   disabled={isLoggingIncident}
                   className={buttonClasses}
+                  aria-label="Submit and log incident with AI routing"
                 >
                   {isLoggingIncident ? 'Logging...' : 'Log & Route'}
                 </button>
