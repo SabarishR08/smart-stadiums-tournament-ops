@@ -49,6 +49,9 @@ interface FanViewProps {
 }
 
 export default function FanView({ accessibilityMode, setAccessibilityMode }: FanViewProps) {
+  // CSRF Token State
+  const [csrfToken, setCsrfToken] = useState<string>('');
+  
   // Shared & Local State
   const [sessionUserId, setSessionUserId] = useState<string>('');
   const [sustainabilityData, setSustainabilityData] = useState<SustainabilityScore>({
@@ -109,6 +112,20 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
 
   // Ref for chat auto-scroll
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // 0. Fetch CSRF Token on mount
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch('/api/csrf-token');
+        const data = await response.json();
+        setCsrfToken(data.token);
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+      }
+    };
+    fetchCsrfToken();
+  }, []);
 
   // 1. Initialize sessionUserId and fetch/create Score doc
   useEffect(() => {
@@ -185,7 +202,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026'
+            'X-CSRF-Token': csrfToken
           },
           body: JSON.stringify({
             message: `Analyze this current crowd densities of gates at the World Cup Stadium and give a 1-line friendly routing suggestion: ${crowdZones.map(z => `${z.name}: ${z.density} density (${z.count} fans)`).join(', ')}`
@@ -313,7 +330,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026'
+          'X-CSRF-Token': csrfToken
         },
         body: JSON.stringify({
           message: userMsg,
@@ -361,7 +378,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026'
+          'X-CSRF-Token': csrfToken
         },
         body: JSON.stringify({ message: queryPrompt })
       });
@@ -403,7 +420,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026'
+            'X-CSRF-Token': csrfToken
           },
           body: JSON.stringify({
             imageBase64: base64String,

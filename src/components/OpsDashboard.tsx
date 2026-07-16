@@ -45,6 +45,9 @@ interface OpsDashboardProps {
 }
 
 export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
+  // CSRF Token State
+  const [csrfToken, setCsrfToken] = useState<string>('');
+  
   // Auth state
   const [user, setUser] = useState<any>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -78,6 +81,20 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
   const [broadcastInput, setBroadcastInput] = useState('');
   const [isTranslating, setIsTranslating] = useState(false);
   const [broadcastResult, setBroadcastResult] = useState<any>(null);
+
+  // 0. Fetch CSRF Token on mount
+  useEffect(() => {
+    const fetchCsrfToken = async () => {
+      try {
+        const response = await fetch('/api/csrf-token');
+        const data = await response.json();
+        setCsrfToken(data.token);
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+      }
+    };
+    fetchCsrfToken();
+  }, []);
 
   // 1. Monitor Auth State & Role
   useEffect(() => {
@@ -242,7 +259,7 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026'
+          'X-CSRF-Token': csrfToken
         },
         body: JSON.stringify({
           message: `Respond as World Cup Security advisor. Logged Incident Type: ${incType}, Zone: ${incZone}, Initial Severity: ${incSeverity}. Notes: ${incNotes}. Recommend 1 immediate action to take, and classify tactical Priority as either low, medium, high, or critical. Format as JSON: {"action": "advice", "priority": "level"}`
@@ -304,7 +321,7 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026',
+          'X-CSRF-Token': csrfToken,
           'X-User-Role': 'staff'
         },
         body: JSON.stringify({ situation: situationInput })
@@ -337,7 +354,7 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026',
+          'X-CSRF-Token': csrfToken,
           'X-User-Role': 'staff'
         },
         body: JSON.stringify({ originalText: broadcastInput })

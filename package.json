@@ -1,12 +1,15 @@
 {
-  "name": "react-example",
+  "name": "stadiumpulse-ai",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "FIFA World Cup 2026 Smart Stadium Platform with AI-powered multilingual concierge, sustainability tracking, and operational intelligence",
+  "author": "StadiumPulse AI Team",
+  "license": "MIT",
   "scripts": {
-    "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node dist/server.cjs",
+    "dev": "tsx src/server/index.ts",
+    "build": "vite build && esbuild src/server/index.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",
+    "start": "node dist/server.js",
     "clean": "rm -rf dist server.cjs",
     "lint": "tsc --noEmit",
     "test": "vitest run"

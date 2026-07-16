@@ -232,57 +232,78 @@ describe('StadiumPulse AI - Smart Stadium Operations & Companion Test Suite', ()
   // H. Integration Mock Test for Incident Command Logger advice Generation
   describe('Operations Incident Log Decision Support API Integration', () => {
     it('should return tactical recommendations for active incidents', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          recommendations: [
-            { rank: 1, action: 'Reroute incoming fans', reasoning: 'Gate B is experiencing heavy volume.' }
-          ]
+      // First mock: fetch CSRF token
+      const mockCsrfFetch = vi.fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ token: 'dynamic_csrf_token_xyz' })
         })
-      });
-      global.fetch = mockFetch;
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            recommendations: [
+              { rank: 1, action: 'Reroute incoming fans', reasoning: 'Gate B is experiencing heavy volume.' }
+            ]
+          })
+        });
+      global.fetch = mockCsrfFetch;
 
+      // Simulate fetching CSRF token first
+      const tokenResponse = await fetch('/api/csrf-token');
+      const tokenData = await tokenResponse.json();
+      const csrfToken = tokenData.token;
+
+      // Now make the actual API call with dynamic token
       const response = await fetch('/api/decision-support', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-CSRF-Token': 'stadium_pulse_secure_csrf_token_2026',
+          'X-CSRF-Token': csrfToken,
           'X-User-Role': 'staff'
         },
         body: JSON.stringify({ situation: 'Crowd rush at Gate B' })
       });
       const data = await response.json();
 
+      expect(csrfToken).toBe('dynamic_csrf_token_xyz');
       expect(data.recommendations[0].action).toBe('Reroute incoming fans');
       expect(data.recommendations[0].rank).toBe(1);
     });
   });
 
-  // I. Security Tests: Stateless CSRF Validation Token Handler
-  describe('Security: Stateless CSRF Validation Token Handler', () => {
-    function simulateCsrfCheck(method: string, headers: { [key: string]: string }): boolean {
+  // I. Security Tests: Dynamic CSRF Validation Token Handler
+  describe('Security: Dynamic CSRF Validation Token Handler', () => {
+    // Simulate dynamic CSRF secret (would be generated at server startup)
+    const DYNAMIC_CSRF_SECRET = 'randomly_generated_secret_per_session';
+
+    function simulateCsrfCheck(method: string, headers: { [key: string]: string }, serverSecret: string): boolean {
       if (['GET', 'HEAD', 'OPTIONS'].includes(method)) return true;
-      return headers['x-csrf-token'] === 'stadium_pulse_secure_csrf_token_2026';
+      return headers['x-csrf-token'] === serverSecret;
     }
 
     it('should allow GET requests without any CSRF tokens', () => {
-      expect(simulateCsrfCheck('GET', {})).toBe(true);
+      expect(simulateCsrfCheck('GET', {}, DYNAMIC_CSRF_SECRET)).toBe(true);
     });
 
     it('should allow HEAD requests without any CSRF tokens', () => {
-      expect(simulateCsrfCheck('HEAD', {})).toBe(true);
+      expect(simulateCsrfCheck('HEAD', {}, DYNAMIC_CSRF_SECRET)).toBe(true);
     });
 
     it('should block POST requests without custom CSRF header', () => {
-      expect(simulateCsrfCheck('POST', {})).toBe(false);
+      expect(simulateCsrfCheck('POST', {}, DYNAMIC_CSRF_SECRET)).toBe(false);
     });
 
     it('should block POST requests with invalid CSRF token values', () => {
-      expect(simulateCsrfCheck('POST', { 'x-csrf-token': 'bad_token' })).toBe(false);
+      expect(simulateCsrfCheck('POST', { 'x-csrf-token': 'bad_token' }, DYNAMIC_CSRF_SECRET)).toBe(false);
     });
 
-    it('should approve POST requests containing exact matching token header', () => {
-      expect(simulateCsrfCheck('POST', { 'x-csrf-token': 'stadium_pulse_secure_csrf_token_2026' })).toBe(true);
+    it('should approve POST requests containing exact matching dynamic token', () => {
+      expect(simulateCsrfCheck('POST', { 'x-csrf-token': DYNAMIC_CSRF_SECRET }, DYNAMIC_CSRF_SECRET)).toBe(true);
+    });
+
+    it('should reject tokens from previous sessions', () => {
+      const oldSessionToken = 'old_session_token_123';
+      expect(simulateCsrfCheck('POST', { 'x-csrf-token': oldSessionToken }, DYNAMIC_CSRF_SECRET)).toBe(false);
     });
   });
 
