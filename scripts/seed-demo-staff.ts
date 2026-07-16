@@ -31,7 +31,7 @@ import * as path from 'path';
 const DEMO_EMAIL = 'admin@stadium.test';
 const DEMO_PASSWORD = crypto.randomBytes(16).toString('base64').slice(0, 16); // Generate secure random password
 const SERVICE_ACCOUNT_PATH = path.join(__dirname, 'serviceAccountKey.json');
-const FIRESTORE_DATABASE_ID = 'ai-studio-605ea102-90d9-41ca-940e-737ad40bc9d4';
+const FIRESTORE_DATABASE_ID = '(default)'; // Using default Firestore database
 
 async function seedDemoStaff() {
   console.log('🔧 StadiumPulse AI - Demo Staff Account Seeder\n');

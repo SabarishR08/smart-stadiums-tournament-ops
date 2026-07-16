@@ -26,15 +26,16 @@ import { ZoneStatus, TransportationStatus } from '../types';
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDL9P1r37CQxqVjGb7DHTbWKZ2UzrZ-mQ0",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "gen-lang-client-0639363380.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "gen-lang-client-0639363380",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "gen-lang-client-0639363380.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "139690074983",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:139690074983:web:48da630f90897f104905c2"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCf4w_MdoE4IFJhykHjcGpC2rHVIOa2t2Q",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "agentflow-prod-assistant.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "agentflow-prod-assistant",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "agentflow-prod-assistant.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1025941268003",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1025941268003:web:1158f9e889aa17b4b1f396",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-MV596YX77T"
 };
 
-const firestoreDatabaseId = import.meta.env.VITE_FIRESTORE_DATABASE_ID || "ai-studio-605ea102-90d9-41ca-940e-737ad40bc9d4";
+const firestoreDatabaseId = import.meta.env.VITE_FIRESTORE_DATABASE_ID || "(default)";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

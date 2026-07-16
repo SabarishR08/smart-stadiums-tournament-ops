@@ -19,7 +19,7 @@ This script bypasses the public signup flow (which correctly defaults new users 
    **Steps to get the key:**
    ```
    1. Go to: https://console.firebase.google.com/
-   2. Select project: gen-lang-client-0639363380
+   2. Select project: agentflow-prod-assistant (Carbon Foot Print)
    3. Click gear icon (⚙️) → Project Settings
    4. Navigate to: Service Accounts tab
    5. Click: "Generate New Private Key" button
@@ -91,8 +91,8 @@ rm scripts/serviceAccountKey.json
 
 **Error: "Permission denied"**
 - Check that your service account key is valid
-- Verify your Firebase project ID matches: `gen-lang-client-0639363380`
-- Ensure Firestore database ID is: `ai-studio-605ea102-90d9-41ca-940e-737ad40bc9d4`
+- Verify your Firebase project ID matches: `agentflow-prod-assistant`
+- Ensure Firestore database ID is: `(default)` (or your custom database ID)
 
 ---
 
