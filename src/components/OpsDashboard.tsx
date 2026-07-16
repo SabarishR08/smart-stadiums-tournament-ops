@@ -188,9 +188,10 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
     try {
       setIsAuthLoading(true);
       const cred = await createUserWithEmailAndPassword(auth, email, password);
-      // Automatically assign 'staff' role for this operations dashboard user
-      await setUserRole(cred.user.uid, email, 'staff');
-      setRole('staff');
+      // New users default to 'fan' role. Staff access must be granted manually via Firebase Console.
+      await setUserRole(cred.user.uid, email, 'fan');
+      setRole('fan');
+      setAuthError('Account created as Fan. Staff access requires manual elevation via Firebase Console.');
     } catch (err: any) {
       console.error(err);
       setAuthError(err.message || 'Registration failed.');
