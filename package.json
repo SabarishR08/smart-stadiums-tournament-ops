@@ -14,6 +14,7 @@
     "lint": "eslint src/ && tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "seed-demo-staff": "tsx scripts/seed-demo-staff.ts"
   },
   "dependencies": {
@@ -38,6 +39,7 @@
     "@types/node": "^22.14.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.1.10",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
     "eslint": "^10.7.0",
