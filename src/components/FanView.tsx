@@ -14,22 +14,14 @@ import {
   WayfindingInfo, 
   SustainabilityScore 
 } from '../types';
-import MapSVG from './MapSVG';
-import { 
-  Volume2, 
-  VolumeX, 
-  Mic, 
-  MicOff, 
-  Leaf, 
-  Users, 
-  Bus, 
-  Send, 
-  QrCode,
-  Trophy,
-  Accessibility,
-  Sparkles,
-  CheckCircle
-} from 'lucide-react';
+import { Trophy, Accessibility } from 'lucide-react';
+
+// Import panel components
+import WayfindingPanel from './fan/WayfindingPanel';
+import CrowdStatusPanel from './fan/CrowdStatusPanel';
+import SustainabilityPanel from './fan/SustainabilityPanel';
+import ChatConcierge from './fan/ChatConcierge';
+import TransportPanel from './fan/TransportPanel';
 
 // Static image imports for production build asset compilation
 import messiKissingTrophy from '../assets/images/messi_kissing_trophy_1783343437487.jpg';
@@ -87,7 +79,6 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
   const [isClassifying, setIsClassifying] = useState(false);
   const [classificationResult, setClassificationResult] = useState<any>(null);
   const [scanMessage, setScanMessage] = useState<string>('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Hero Slides Carousel State
   const [heroSlide, setHeroSlide] = useState(0);
@@ -219,7 +210,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
     const interval = setInterval(generateRecommendation, 15000);
 
     return () => clearInterval(interval);
-  }, [crowdZones.length]); // Dependencies based on list length to avoid excessive refetching on slight updates
+  }, [crowdZones.length, csrfToken]); 
 
   // 4. Scroll Chat to Bottom
   useEffect(() => {
@@ -234,7 +225,6 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
     try {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      // Auto-detect voice language based on chat detection if possible
       window.speechSynthesis.speak(utterance);
     } catch (e) {
       console.error('Text to speech failed:', e);
@@ -253,7 +243,6 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
     const nextState = !voiceOutputActive;
     setVoiceOutputActive(nextState);
     if (nextState) {
-      // Speak quick feedback
       const u = new SpeechSynthesisUtterance("Voice output activated. I will read response messages out loud.");
       window.speechSynthesis.speak(u);
     } else {
@@ -278,7 +267,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
     const recognition = new SpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = 'en-US'; // Default, but speech recognizers support multi-lang
+    recognition.lang = 'en-US';
 
     recognition.onstart = () => {
       setVoiceInputActive(true);
@@ -310,7 +299,6 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
     const userMsg = chatInput.trim();
     setChatInput('');
     
-    // Add User Message
     const userMsgObj: ChatMessage = {
       id: 'msg_' + Date.now(),
       sender: 'user',
@@ -366,7 +354,6 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
 
     setIsTransitLoading(true);
     try {
-      // Craft query about transit directions and live statuses
       const queryPrompt = `Based on my location "${userLocationInput}", recommend the best stadium transit path using the following live transportation statuses: ${transports.map(t => `${t.name} is ${t.status} with ETA ${t.eta}`).join(', ')}`;
       
       const response = await fetch('/api/chat', {
@@ -391,7 +378,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
   };
 
   // 11. Handle Sustainability Image Upload/Classify
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -400,7 +387,6 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
       return;
     }
 
-    // Read file as base64
     const reader = new FileReader();
     reader.onloadstart = () => {
       setIsClassifying(true);
@@ -428,7 +414,6 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           setClassificationResult(data);
           setScanMessage(`Success! Identified ${data.itemName}.`);
           
-          // Write sustainability points updating directly to Firestore
           const docRef = doc(db, 'sustainability_scores', sessionUserId);
           await setDoc(docRef, {
             userId: sessionUserId,
@@ -449,42 +434,14 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
       }
     };
 
-    reader.onerror = () => {
-      setScanMessage('Failed to read image.');
-      setIsClassifying(false);
-    };
-
     reader.readAsDataURL(file);
   };
 
-  // 12. Map crowd density value to Color/Aria description
-  const getDensityColor = (density: string) => {
-    switch (density) {
-      case 'low': return { bg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400', dot: 'bg-emerald-400', label: 'Low Congestion' };
-      case 'medium': return { bg: 'bg-amber-500/10 border-amber-500/30 text-amber-400', dot: 'bg-amber-400', label: 'Moderate Crowds' };
-      case 'high': return { bg: 'bg-rose-500/10 border-rose-500/30 text-rose-400', dot: 'bg-rose-400', label: 'Heavy Congestion' };
-      default: return { bg: 'bg-slate-500/10 border-slate-500/30 text-slate-400', dot: 'bg-slate-400', label: 'Unknown' };
-    }
-  };
-
-  // Setup contrast classes for Access Mode
-  const themeClasses = accessibilityMode 
-    ? 'bg-black text-white' 
-    : 'bg-transparent text-zinc-100';
-
-  const cardClasses = accessibilityMode
-    ? 'bg-black border-2 border-white rounded-none p-5'
-    : 'bg-zinc-900/20 backdrop-blur-xl border border-zinc-800/40 rounded-2xl p-5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] relative z-10';
-
-  const inputClasses = accessibilityMode
-    ? 'bg-black border-2 border-white text-white rounded-none focus:ring-4 focus:ring-yellow-400 focus:border-white focus:outline-none placeholder-slate-400 text-lg p-3'
-    : 'bg-zinc-950/40 backdrop-blur-md border border-zinc-800/60 text-zinc-100 rounded-xl focus:ring-2 focus:ring-zinc-400 focus:border-zinc-400 focus:outline-none placeholder-zinc-500 p-2.5';
-
-  const buttonClasses = accessibilityMode
-    ? 'bg-yellow-400 text-black border-2 border-black font-bold py-3 px-5 rounded-none hover:bg-yellow-300 focus:ring-4 focus:ring-yellow-400'
-    : 'bg-white hover:bg-zinc-200 text-black font-semibold py-2.5 px-4 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] focus:ring-2 focus:ring-zinc-300/50';
-
-  const labelSize = accessibilityMode ? 'text-lg font-bold' : 'text-xs font-semibold uppercase tracking-wider text-zinc-400';
+  // Theme & Style Classes
+  const themeClasses = accessibilityMode ? 'bg-black text-white' : 'bg-[#080913] text-zinc-300';
+  const cardClasses = accessibilityMode 
+    ? 'p-6 border-4 border-white bg-black' 
+    : 'p-5 rounded-2xl border border-zinc-800/50 bg-zinc-950/30 backdrop-blur-lg shadow-xl';
   const headingSize = accessibilityMode ? 'text-2xl font-black mb-3' : 'text-sm font-bold uppercase tracking-wider mb-3 flex items-center gap-2 text-white';
 
   return (
@@ -568,28 +525,27 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
               image: argentina2022WcPhoto,
               match: "ARG vs FRA • 2022 WORLD CUP CHAMPIONS",
               score: "3(4) - 3(2)",
-              time: "HISTORIC FINALE",
+              time: "120' PENALTY SHOOTOUT",
               teamA: "ARG",
               teamB: "FRA",
               flagA: "🇦🇷",
               flagB: "🇫🇷",
-              color: "from-amber-600/10"
+              color: "from-blue-500/10"
             }
           ].map((slide, idx) => (
-            <div 
-              key={slide.id} 
-              className={`absolute inset-0 transition-all duration-1000 ease-in-out flex flex-col md:flex-row items-end justify-end p-6 md:p-8 pb-16 md:pb-16 gap-6 z-0 ${
-                heroSlide === idx ? "opacity-100 scale-100 pointer-events-auto" : "opacity-0 scale-95 pointer-events-none"
+            <div
+              key={slide.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                heroSlide === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'
               }`}
             >
               {/* Background with fading gradients */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
                 <img 
                   src={slide.image} 
-                  alt="World Cup moment" 
-                  className={`w-full h-full object-cover object-center transition-transform duration-[7000ms] ease-out ${
-                    heroSlide === idx ? "scale-105 opacity-100" : "scale-100 opacity-80"
-                  }`}
+                  alt={slide.match}
+                  className="w-full h-full object-cover opacity-40"
+                  loading="lazy"
                   referrerPolicy="no-referrer"
                 />
                 {/* Vignette overlays to make the image look like a cinema frame and blend nicely */}
@@ -600,57 +556,46 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
               {/* Live Match scorecard widget overlay */}
               <div className="relative z-10 bg-[#050816]/95 backdrop-blur-2xl border border-slate-800 p-4 rounded-2xl w-full md:w-auto md:min-w-[280px] space-y-3 shadow-2xl self-end mb-4 md:mb-0">
                 <div className="flex items-center justify-between border-b border-slate-800/80 pb-2">
-                  <span className="text-[10px] font-mono font-black tracking-widest text-slate-400 uppercase">{slide.match}</span>
-                  <span className="text-[10px] font-black text-red-500 flex items-center gap-1.5 font-mono">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-ping"></span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500 absolute"></span> LIVE
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl filter drop-shadow">{slide.flagA}</span>
-                    <span className="text-xs font-bold text-slate-200">{slide.teamA}</span>
-                  </div>
-                  <div className="text-center">
-                    <span className="font-mono text-xs bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl font-black text-emerald-400 shadow-inner">
-                      {slide.score}
-                    </span>
-                    <p className="text-[9px] text-slate-500 font-bold mt-2 tracking-wider font-mono">{slide.time}</p>
-                  </div>
-                  <div className="flex items-center gap-2 flex-row-reverse">
-                    <span className="text-xl filter drop-shadow">{slide.flagB}</span>
-                    <span className="text-xs font-bold text-slate-200">{slide.teamB}</span>
-                  </div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{slide.time}</span>
+                  <span className="text-[9px] text-slate-600 font-mono">LIVE</span>
                 </div>
 
-                {/* Scorecard quick tabs / links - pill buttons requested below scorecard */}
+                <div className="text-white flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{slide.flagA}</span>
+                    <span className="text-lg font-black tracking-tight">{slide.teamA}</span>
+                  </div>
+                  <span className="text-3xl font-black mx-4">{slide.score.split(' - ')[0]}</span>
+                </div>
+                <div className="text-white flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{slide.flagB}</span>
+                    <span className="text-lg font-black tracking-tight">{slide.teamB}</span>
+                  </div>
+                  <span className="text-3xl font-black mx-4">{slide.score.split(' - ')[1]}</span>
+                </div>
+
+                {/* Scorecard quick tabs / pill buttons requested below scorecard */}
                 <div className="flex items-center gap-1.5 pt-2.5 border-t border-slate-800/60 justify-center">
                   <button
                     onClick={() => { setTournamentHubTab('matches'); setIsTournamentHubOpen(true); }}
-                    className="px-2.5 py-1 rounded-full bg-zinc-900 hover:bg-zinc-850 text-[9px] font-black uppercase tracking-wider text-zinc-300 hover:text-white transition-all border border-zinc-850"
+                    className="py-1 px-3 rounded-full bg-slate-800/60 border border-slate-700/50 text-slate-300 text-[10px] font-bold hover:bg-slate-700/60 transition-all"
                   >
-                    Matches
-                  </button>
-                  <button
-                    onClick={() => { setTournamentHubTab('bracket'); setIsTournamentHubOpen(true); }}
-                    className="px-2.5 py-1 rounded-full bg-zinc-900 hover:bg-zinc-850 text-[9px] font-black uppercase tracking-wider text-zinc-300 hover:text-white transition-all border border-zinc-850"
-                  >
-                    Bracket
+                    LIVE MATCHES
                   </button>
                   <button
                     onClick={() => { setTournamentHubTab('standings'); setIsTournamentHubOpen(true); }}
-                    className="px-2.5 py-1 rounded-full bg-zinc-800/80 hover:bg-zinc-750 text-[9px] font-black uppercase tracking-wider text-emerald-400 hover:text-emerald-300 transition-all border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]"
+                    className="py-1 px-3 rounded-full bg-slate-800/60 border border-slate-700/50 text-slate-300 text-[10px] font-bold hover:bg-slate-700/60 transition-all"
                   >
-                    Standings
+                    STANDINGS
                   </button>
                   <button
-                    onClick={() => { setTournamentHubTab('players'); setIsTournamentHubOpen(true); }}
-                    className="px-2.5 py-1 rounded-full bg-zinc-900 hover:bg-zinc-850 text-[9px] font-black uppercase tracking-wider text-zinc-300 hover:text-white transition-all border border-zinc-850"
+                    onClick={() => { setTournamentHubTab('bracket'); setIsTournamentHubOpen(true); }}
+                    className="py-1 px-3 rounded-full bg-slate-800/60 border border-slate-700/50 text-slate-300 text-[10px] font-bold hover:bg-slate-700/60 transition-all"
                   >
-                    Stats
+                    BRACKET
                   </button>
                 </div>
-
               </div>
             </div>
           ))}
@@ -658,401 +603,98 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           {/* DOTS CONTROLS */}
           <div className="relative z-10 flex items-center justify-between gap-4 border-t border-slate-800/40 pt-4 mt-auto">
             <div className="flex gap-2">
-              {[0, 1, 2, 3].map((idx) => (
+              {[0, 1, 2, 3].map(idx => (
                 <button
                   key={idx}
                   onClick={() => setHeroSlide(idx)}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    heroSlide === idx ? "w-8 bg-emerald-400" : "w-2 bg-slate-700 hover:bg-slate-500"
-                  }`}
+                  className={`w-2 h-2 rounded-full transition-all ${heroSlide === idx ? 'bg-white w-6' : 'bg-slate-700'}`}
                   aria-label={`Go to slide ${idx + 1}`}
                 />
               ))}
             </div>
-            <div className="text-[9px] font-mono font-bold uppercase text-slate-500 tracking-widest">
-              Commercial Broadcast Feed
-            </div>
+            <span className="text-[9px] text-slate-600 font-mono">FIFA World Cup 2026™</span>
           </div>
-
         </div>
       )}
 
       <main className="grid grid-cols-1 lg:grid-cols-12 gap-6" role="main">
         
-        {/* LEFT COLUMN: Map & Wayfinding + Crowd Status (7 Cols) */}
+        {/* LEFT COLUMN: Map & Wayfinding + Crowd Status + Sustainability (7 Cols) */}
         <div className="lg:col-span-7 space-y-6">
           
-          {/* A. MAP & WAYFINDING */}
-          <section className={cardClasses} aria-label="Wayfinding & Stadium Map">
-            <h2 className={headingSize}>
-              <QrCode className="w-5 h-5 inline-block text-zinc-400" />
-              <span>Wayfinding & Gate Locator</span>
-            </h2>
+          <WayfindingPanel
+            accessibilityMode={accessibilityMode}
+            csrfToken={csrfToken}
+            sessionUserId={sessionUserId}
+            cardClasses={cardClasses}
+            headingSize={headingSize}
+            selectedSection={selectedSection}
+            selectedWayfinding={selectedWayfinding}
+            onSectionSelect={handleMapSectionClick}
+          />
 
-            {/* Stadium Map rendering */}
-            <div className="mb-4">
-              <MapSVG 
-                selectedSection={selectedSection}
-                onSectionSelect={handleMapSectionClick}
-              />
-            </div>
+          <CrowdStatusPanel
+            accessibilityMode={accessibilityMode}
+            csrfToken={csrfToken}
+            sessionUserId={sessionUserId}
+            cardClasses={cardClasses}
+            headingSize={headingSize}
+            crowdZones={crowdZones}
+            crowdRecommendation={crowdRecommendation}
+            isCrowdLoading={isCrowdLoading}
+          />
 
-            {/* Selected Wayfinding Info - Only show when section is selected */}
-            {selectedWayfinding && (
-              <div className={`p-4 rounded-xl ${accessibilityMode ? 'border-2 border-white' : 'bg-zinc-950/30 backdrop-blur-md border border-zinc-800/50'}`}>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-zinc-900/60 pb-2">
-                    <span className={`font-bold ${accessibilityMode ? 'text-xl' : 'text-base text-white'}`}>
-                      Section {selectedWayfinding.section} Selected
-                    </span>
-                    <span className="text-xs bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 px-2.5 py-0.5 rounded-full font-semibold">
-                      Fastest Path
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                    <div>
-                      <p className={labelSize}>Nearest Gate</p>
-                      <p className={`font-semibold ${accessibilityMode ? 'text-lg' : 'text-slate-200'}`}>
-                        {selectedWayfinding.nearestGate}
-                      </p>
-                    </div>
-                    <div>
-                      <p className={labelSize}>Nearest Restroom</p>
-                      <p className={`font-semibold ${accessibilityMode ? 'text-lg' : 'text-slate-200'}`}>
-                        {selectedWayfinding.nearestRestroom}
-                      </p>
-                    </div>
-                    <div>
-                      <p className={labelSize}>ADA Entrance</p>
-                      <p className={`font-semibold ${accessibilityMode ? 'text-lg' : 'text-slate-200'}`}>
-                        {selectedWayfinding.accessibleEntrance}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </section>
-
-          {/* B. LIVE CROWD STATUS */}
-          <section className={cardClasses} aria-label="Real-time Gate Densities">
-            <div className="flex items-center justify-between mb-3 border-b border-zinc-900/60 pb-2.5">
-              <h2 className={headingSize}>
-                <Users className="w-5 h-5 inline-block text-zinc-400" />
-                <span>Live Crowd Status</span>
-              </h2>
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-zinc-500 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-zinc-400"></span>
-                </span>
-                <span className="text-[10px] text-zinc-500 font-mono">15s AUTO-REFRESH</span>
-              </div>
-            </div>
-
-            {/* List of crowd densities */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-              {crowdZones.map((zone) => {
-                const density = getDensityColor(zone.density);
-                return (
-                  <div 
-                    key={zone.id} 
-                    className={`p-3 rounded-lg border flex flex-col justify-between ${density.bg}`}
-                    aria-label={`${zone.name} is reporting ${density.label} with approximately ${zone.count} people.`}
-                  >
-                    <div>
-                      <span className="text-xs font-semibold line-clamp-1 block text-slate-300">{zone.name}</span>
-                      <span className={`text-xs font-black block mt-0.5 uppercase tracking-wider`}>
-                        {zone.density}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between mt-2.5 pt-1.5 border-t border-slate-800/20">
-                      <span className="text-[10px] text-slate-400 font-mono">{zone.count} FANS</span>
-                      <span className={`w-2 h-2 rounded-full ${density.dot}`}></span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Gemini Live Recommendation */}
-            <div className={`p-4 rounded-xl border ${accessibilityMode ? 'border-2 border-white' : 'bg-zinc-950/20 backdrop-blur-md border-zinc-800/40 shadow-inner'}`}>
-              <div className="flex gap-2 items-start">
-                <Sparkles className={`w-5 h-5 shrink-0 ${accessibilityMode ? 'text-yellow-400' : 'text-zinc-300'}`} />
-                <div>
-                  <h3 className={`font-bold ${accessibilityMode ? 'text-xl' : 'text-sm text-white'}`}>
-                    StadiumPulse AI Congestion Routing
-                  </h3>
-                  <p className={`mt-1 ${accessibilityMode ? 'text-lg' : 'text-xs text-slate-300 leading-relaxed'}`}>
-                    {isCrowdLoading ? (
-                      <span className="inline-flex items-center gap-1.5 text-slate-400">
-                        <span className="w-1.5 h-1.5 bg-slate-400 animate-bounce rounded-full"></span>
-                        <span className="w-1.5 h-1.5 bg-slate-400 animate-bounce rounded-full delay-150"></span>
-                        <span className="w-1.5 h-1.5 bg-slate-400 animate-bounce rounded-full delay-300"></span>
-                        <span>Generating live congestion advice...</span>
-                      </span>
-                    ) : crowdRecommendation}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* C. SUSTAINABILITY HELPER */}
-          <section className={cardClasses} aria-label="EcoCup Sustainability Tracker">
-            <h2 className={headingSize}>
-              <Leaf className="w-5 h-5 inline-block text-zinc-400" />
-              <span>Sustainability EcoCup Assistant</span>
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-5">
-              
-              {/* Scoring Panel */}
-              <div className={`sm:col-span-5 p-4 rounded-xl flex flex-col justify-between ${accessibilityMode ? 'border-2 border-white' : 'bg-zinc-950/30 border border-zinc-800/50'}`}>
-                <div>
-                  <h3 className={labelSize}>Your Stadium Impact</h3>
-                  <div className="flex items-baseline gap-2 mt-2">
-                    <span className={`font-black tracking-tight ${accessibilityMode ? 'text-5xl text-yellow-400' : 'text-4xl text-zinc-200'}`}>
-                      {sustainabilityData.score}
-                    </span>
-                    <span className="text-xs text-zinc-500 font-bold uppercase">PTS</span>
-                  </div>
-                </div>
-                <div className="mt-4 pt-3 border-t border-zinc-800 flex justify-between items-center text-xs">
-                  <span className="text-slate-400">Items Sorted:</span>
-                  <span className="font-bold text-slate-200">{sustainabilityData.itemsScanned} items</span>
-                </div>
-              </div>
-
-              {/* Upload/Scanner Form */}
-              <div className="sm:col-span-7 space-y-3">
-                <p className="text-xs text-slate-400">
-                  Take a photo of your cup, wrapper, or container. Gemini Vision will categorize it and show the correct bin.
-                </p>
-
-                <div className="flex items-center gap-3">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleImageFileChange}
-                    accept="image/*"
-                    capture="environment" // trigger camera on mobile devices
-                    className="hidden"
-                    aria-label="Upload item image for sustainability classification"
-                  />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isClassifying}
-                    className={`w-full ${buttonClasses} text-center flex items-center justify-center gap-2`}
-                  >
-                    <Leaf className="w-4 h-4" />
-                    <span>{isClassifying ? 'Analyzing...' : 'Scan / Upload Item'}</span>
-                  </button>
-                </div>
-
-                {scanMessage && (
-                  <p className="text-xs text-slate-400 bg-slate-950 p-2 border border-slate-800 rounded font-mono">
-                    {scanMessage}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Classification Result Card */}
-            {classificationResult && (
-              <div className={`mt-4 p-4 rounded-xl border ${accessibilityMode ? 'border-2 border-white bg-black' : 'bg-slate-950 border-slate-800'} flex gap-3`}>
-                <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 self-start text-emerald-400">
-                  <CheckCircle className="w-5 h-5" />
-                </div>
-                <div className="text-sm">
-                  <p className="font-semibold text-slate-200">
-                    Category: <span className="text-emerald-400 capitalize">{classificationResult.category}</span>
-                  </p>
-                  <p className="font-bold text-yellow-400 mt-1">
-                    Correct Bin: {classificationResult.correctBin}
-                  </p>
-                  <p className="text-slate-400 mt-1 text-xs">
-                    {classificationResult.explanation}
-                  </p>
-                  <p className="text-[10px] text-emerald-400 font-bold mt-2">
-                    +{classificationResult.scoreAwarded} POINTS AWARDED TO CLOUD PROFILE
-                  </p>
-                </div>
-              </div>
-            )}
-          </section>
-
+          <SustainabilityPanel
+            accessibilityMode={accessibilityMode}
+            csrfToken={csrfToken}
+            sessionUserId={sessionUserId}
+            cardClasses={cardClasses}
+            headingSize={headingSize}
+            sustainabilityData={sustainabilityData}
+            isClassifying={isClassifying}
+            classificationResult={classificationResult}
+            scanMessage={scanMessage}
+            onImageFileChange={handleImageFileChange}
+          />
         </div>
 
         {/* RIGHT COLUMN: AI Concierge Chat + Transport Advice (5 Cols) */}
         <div className="lg:col-span-5 space-y-6">
-          {/* A. MULTILINGUAL AI CONCIERGE CHAT */}
-          <section className={`${cardClasses} flex flex-col h-[520px]`} aria-label="AI Concierge Companion">
-            
-            {/* Header with speech options */}
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3 mb-3 shrink-0">
-              <h2 className={`${headingSize} !mb-0`}>
-                <Sparkles className="w-5 h-5 inline-block text-zinc-400" />
-                <span>Multilingual AI Concierge</span>
-              </h2>
- 
-              <div className="flex items-center gap-1.5">
-                {/* Text-to-Speech Output Toggle */}
-                <button
-                  onClick={toggleVoiceOutput}
-                  className={`p-2 rounded-lg border text-xs flex items-center justify-center focus:ring-4 focus:ring-yellow-400 ${voiceOutputActive ? 'bg-white border-zinc-200 text-black shadow-lg' : 'bg-zinc-900/60 border-zinc-800/80 text-zinc-300'}`}
-                  aria-label={voiceOutputActive ? "Mute automatic voice response" : "Enable automatic voice reading"}
-                  title={voiceOutputActive ? "Mute Speech Out" : "Enable Speech Out"}
-                >
-                  {voiceOutputActive ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-zinc-500" />}
-                </button>
-              </div>
-            </div>
+          <ChatConcierge
+            accessibilityMode={accessibilityMode}
+            csrfToken={csrfToken}
+            sessionUserId={sessionUserId}
+            cardClasses={cardClasses}
+            headingSize={headingSize}
+            chatInput={chatInput}
+            chatMessages={chatMessages}
+            isChatLoading={isChatLoading}
+            voiceInputActive={voiceInputActive}
+            voiceOutputActive={voiceOutputActive}
+            onChatInputChange={setChatInput}
+            onSendChat={handleSendChat}
+            onToggleVoiceInput={toggleVoiceInput}
+            onToggleVoiceOutput={toggleVoiceOutput}
+          />
 
-            {/* Message Box */}
-            <div 
-              className={`flex-1 overflow-y-auto p-3 space-y-3 rounded-xl mb-3 ${accessibilityMode ? 'border-2 border-white' : 'bg-zinc-950/40 border border-zinc-900/60'}`}
-              role="log"
-              aria-live="polite"
-              aria-label="Concierge Chat logs"
-            >
-              {chatMessages.map((msg) => (
-                <div 
-                  key={msg.id} 
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div 
-                    className={`p-3 max-w-[85%] text-sm ${msg.sender === 'user' 
-                      ? (accessibilityMode ? 'bg-white text-black border border-black font-bold' : 'bg-zinc-100/10 border border-zinc-200/20 rounded-2xl rounded-tr-none text-white') 
-                      : (accessibilityMode ? 'bg-black text-white border-2 border-white' : 'bg-zinc-900/40 border border-zinc-800/60 rounded-2xl rounded-tl-none text-zinc-300')
-                    }`}
-                  >
-                    <p className="leading-relaxed">{msg.text}</p>
-                    <span className="text-[9px] block text-right mt-1 opacity-60 font-mono">
-                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                </div>
-              ))}
-              {isChatLoading && (
-                <div className="flex justify-start">
-                  <div className={`p-3 rounded-xl text-sm ${accessibilityMode ? 'border border-white' : 'bg-slate-900 text-slate-400'}`}>
-                    <span className="inline-flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-blue-400 animate-bounce rounded-full"></span>
-                      <span className="w-1.5 h-1.5 bg-blue-400 animate-bounce rounded-full delay-150"></span>
-                      <span className="w-1.5 h-1.5 bg-blue-400 animate-bounce rounded-full delay-300"></span>
-                      <span>StadiumPulse AI is replying...</span>
-                    </span>
-                  </div>
-                </div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
-
-            {/* Input Form with Speech Recognition */}
-            <form onSubmit={handleSendChat} className="flex gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={toggleVoiceInput}
-                className={`p-3 border flex items-center justify-center shrink-0 focus:ring-4 focus:ring-yellow-400 ${voiceInputActive ? 'bg-rose-600 border-rose-500 text-white animate-pulse' : 'bg-slate-800 border-slate-700 text-slate-300 rounded-lg'}`}
-                aria-label={voiceInputActive ? "Stop speaking" : "Start speaking concierge request"}
-                title={voiceInputActive ? "Listening..." : "Speak Request"}
-              >
-                {voiceInputActive ? <MicOff className="w-4 h-4 text-white" /> : <Mic className="w-4 h-4" />}
-              </button>
-
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Ask about gate, match, seat..."
-                className={`flex-1 ${inputClasses}`}
-                aria-label="Type your concierge question"
-                disabled={isChatLoading}
-              />
-
-              <button
-                type="submit"
-                className={buttonClasses}
-                disabled={isChatLoading || !chatInput.trim()}
-                aria-label="Send message"
-              >
-                <Send className="w-4 h-4" />
-              </button>
-            </form>
-          </section>
-
-          {/* B. TRANSPORTATION PANEL */}
-          <section className={cardClasses} aria-label="Shuttle & Parking Feeds">
-            <h2 className={headingSize}>
-              <Bus className="w-5 h-5 inline-block text-zinc-400" />
-              <span>Transportation & Parking Feeds</span>
-            </h2>
-
-            {/* Live shuttle feeds from Firestore */}
-            <div className="space-y-2 mb-4">
-              {transports.map((item) => (
-                <div 
-                  key={item.id} 
-                  className={`p-2.5 rounded-lg border text-xs flex items-center justify-between ${accessibilityMode ? 'border-2 border-white' : 'bg-zinc-950/40 border-zinc-800/60'}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className={`w-1.5 h-1.5 rounded-full ${item.status.includes('Full') || item.status.includes('Delay') ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
-                    <span className="font-medium text-zinc-200">{item.name}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-mono text-zinc-400 block">{item.status}</span>
-                    <span className="font-bold text-zinc-300">{item.eta}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* AI Best route generator form */}
-            <form onSubmit={handleGetTransitSuggestions} className="space-y-2">
-              <label htmlFor="stated-location-input" className={labelSize}>
-                Stated Location Route Advisor
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id="stated-location-input"
-                  type="text"
-                  value={userLocationInput}
-                  onChange={(e) => setUserLocationInput(e.target.value)}
-                  placeholder="e.g. Metro Station, Gate A, Downtown Hotel"
-                  className={`flex-1 ${inputClasses}`}
-                  aria-label="Enter your current location to compute best route"
-                />
-                <button
-                  type="submit"
-                  disabled={isTransitLoading || !userLocationInput.trim()}
-                  className={buttonClasses}
-                >
-                  {isTransitLoading ? 'Routing...' : 'Get Route'}
-                </button>
-              </div>
-            </form>
-
-            {/* Transit Advice Result */}
-            {transitRouteSuggestion && (
-              <div className={`mt-3 p-3.5 rounded-lg border ${accessibilityMode ? 'border-2 border-white bg-black' : 'bg-zinc-950/40 border-zinc-800/60'}`}>
-                <p className="text-xs font-bold text-zinc-300 mb-1 flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-zinc-400" />
-                  <span>Gemini Recommended Route:</span>
-                </p>
-                <p className={`text-xs text-zinc-400 leading-relaxed`}>
-                  {transitRouteSuggestion}
-                </p>
-              </div>
-            )}
-          </section>
-
+          <TransportPanel
+            accessibilityMode={accessibilityMode}
+            csrfToken={csrfToken}
+            sessionUserId={sessionUserId}
+            cardClasses={cardClasses}
+            headingSize={headingSize}
+            transports={transports}
+            userLocationInput={userLocationInput}
+            transitRouteSuggestion={transitRouteSuggestion}
+            isTransitLoading={isTransitLoading}
+            onLocationInputChange={setUserLocationInput}
+            onGetTransitSuggestions={handleGetTransitSuggestions}
+          />
         </div>
-
       </main>
 
-      {/* TOURNAMENT HUB COMPONENT DRAWERS */}
-      <TournamentHub 
+      {/* Tournament Hub Drawer */}
+      <TournamentHub
         isOpen={isTournamentHubOpen}
         onClose={() => setIsTournamentHubOpen(false)}
         defaultTab={tournamentHubTab}
