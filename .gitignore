@@ -8,3 +8,7 @@ coverage/
 !.env.example
 firebase-applet-config.json
 how*firebase-applet-config.json
+
+# Firebase Admin SDK service account key (NEVER COMMIT)
+scripts/serviceAccountKey.json
+scripts/demo-credentials.txt
