@@ -49,7 +49,7 @@ async function seedDemoStaff() {
     console.error(`\nExpected location: ${SERVICE_ACCOUNT_PATH}`);
     console.error('\n📋 How to get the service account key:');
     console.error('   1. Go to Firebase Console: https://console.firebase.google.com/');
-    console.error('   2. Select your project: gen-lang-client-0639363380');
+    console.error('   2. Select your project: agentflow-prod-assistant');
     console.error('   3. Go to Project Settings (gear icon) > Service Accounts');
     console.error('   4. Click "Generate New Private Key"');
     console.error(`   5. Save the downloaded JSON file as: ${SERVICE_ACCOUNT_PATH}`);
