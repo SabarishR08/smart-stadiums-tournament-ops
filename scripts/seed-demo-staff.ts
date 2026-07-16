@@ -22,10 +22,17 @@
  *      rm scripts/serviceAccountKey.json
  */
 
-import * as admin from 'firebase-admin';
+import { initializeApp, cert, ServiceAccount } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
+
+// ES module equivalents for __dirname and __filename
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configuration
 const DEMO_EMAIL = 'admin@stadium.test';
@@ -54,19 +61,19 @@ async function seedDemoStaff() {
   console.log('📦 Initializing Firebase Admin SDK...');
   const serviceAccount = JSON.parse(fs.readFileSync(SERVICE_ACCOUNT_PATH, 'utf8'));
   
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+  initializeApp({
+    credential: cert(serviceAccount as ServiceAccount),
     databaseURL: `https://${serviceAccount.project_id}.firebaseio.com`
   });
 
-  const auth = admin.auth();
-  const db = admin.firestore();
+  const auth = getAuth();
+  const db = getFirestore();
   db.settings({ databaseId: FIRESTORE_DATABASE_ID });
 
   try {
     // 3. Check if user already exists
     console.log(`\n🔍 Checking if ${DEMO_EMAIL} already exists...`);
-    let userRecord: admin.auth.UserRecord;
+    let userRecord;
     
     try {
       userRecord = await auth.getUserByEmail(DEMO_EMAIL);

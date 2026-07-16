@@ -10,13 +10,13 @@ COPY . .
 
 # Write .env.production so Vite picks it up at build time.
 # These are non-secret Firebase Web SDK values (public identifiers, not service account keys).
-RUN echo "VITE_FIREBASE_API_KEY=AIzaSyDL9P1r37CQxqVjGb7DHTbWKZ2UzrZ-mQ0" > .env.production && \
-    echo "VITE_FIREBASE_AUTH_DOMAIN=gen-lang-client-0639363380.firebaseapp.com" >> .env.production && \
-    echo "VITE_FIREBASE_PROJECT_ID=gen-lang-client-0639363380" >> .env.production && \
-    echo "VITE_FIREBASE_STORAGE_BUCKET=gen-lang-client-0639363380.firebasestorage.app" >> .env.production && \
-    echo "VITE_FIREBASE_MESSAGING_SENDER_ID=139690074983" >> .env.production && \
-    echo "VITE_FIREBASE_APP_ID=1:139690074983:web:48da630f90897f104905c2" >> .env.production && \
-    echo "VITE_FIRESTORE_DATABASE_ID=ai-studio-605ea102-90d9-41ca-940e-737ad40bc9d4" >> .env.production
+RUN echo "VITE_FIREBASE_API_KEY=AIzaSyCf4w_MdoE4IFJhykHjcGpC2rHVIOa2t2Q" > .env.production && \
+    echo "VITE_FIREBASE_AUTH_DOMAIN=agentflow-prod-assistant.firebaseapp.com" >> .env.production && \
+    echo "VITE_FIREBASE_PROJECT_ID=agentflow-prod-assistant" >> .env.production && \
+    echo "VITE_FIREBASE_STORAGE_BUCKET=agentflow-prod-assistant.firebasestorage.app" >> .env.production && \
+    echo "VITE_FIREBASE_MESSAGING_SENDER_ID=1025941268003" >> .env.production && \
+    echo "VITE_FIREBASE_APP_ID=1:1025941268003:web:1158f9e889aa17b4b1f396" >> .env.production && \
+    echo "VITE_FIRESTORE_DATABASE_ID=(default)" >> .env.production
 
 RUN npm run build
 
