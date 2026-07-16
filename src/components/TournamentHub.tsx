@@ -417,7 +417,7 @@ const RAW_MATCHES = [
 const MATCHES_DATA: Match[] = RAW_MATCHES.map(m => {
   // Deterministic live stats generator for completed matches to enrich UI view
   const isPenalties = m.score && m.score.includes('(');
-  const coreScore = isPenalties ? m.score!.replace(/\s*\(\d+\)\s*/g, '') : m.score;
+  const coreScore = isPenalties ? m.score.replace(/\s*\(\d+\)\s*/g, '') : m.score;
   const scoreParts = coreScore ? coreScore.split(' - ') : null;
   const valA = scoreParts ? parseInt(scoreParts[0]) : 0;
   const valB = scoreParts ? parseInt(scoreParts[1]) : 0;
@@ -431,7 +431,7 @@ const MATCHES_DATA: Match[] = RAW_MATCHES.map(m => {
     corners: m.score ? `${3 + valA + Math.round(Math.random() * 4)} - ${2 + valB + Math.round(Math.random() * 4)}` : undefined,
     yellowCards: m.score ? `${Math.round(Math.random() * 3)} - ${Math.round(Math.random() * 4)}` : undefined,
     redCards: m.score ? (Math.random() > 0.95 ? "1 - 0" : "0 - 0") : undefined
-  } as Match;
+  };
 });
 
 interface TournamentHubProps {
@@ -595,7 +595,7 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
           alt={countryName} 
           className="w-5 h-3.5 object-cover rounded shadow-sm shrink-0 border border-zinc-800/20"
           onError={(e) => {
-            (e.currentTarget as HTMLImageElement).style.display = 'none';
+            (e.currentTarget).style.display = 'none';
           }}
         />
         <span className="text-base select-none filter drop-shadow-sm shrink-0 md:hidden block">{data.emoji}</span>
@@ -663,7 +663,7 @@ export default function TournamentHub({ isOpen, onClose, defaultTab }: Tournamen
           return { ...g, teams: filteredTeams };
         }
         return null;
-      }).filter(Boolean) as Group[];
+      }).filter(Boolean);
     }
 
     // Filter Qualified only (top 2 of each group)

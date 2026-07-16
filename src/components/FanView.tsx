@@ -152,7 +152,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
         setSustainabilityData(docSnap.data() as SustainabilityScore);
       } else {
         const initialScore: SustainabilityScore = {
-          userId: uId!,
+          userId: uId,
           score: 0,
           itemsScanned: 0,
           updatedAt: new Date().toISOString()

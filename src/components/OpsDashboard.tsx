@@ -658,7 +658,7 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
                 <div className="h-44 w-full flex items-end justify-around border-b border-l border-slate-800 pb-2.5 px-2">
                   {incidentTypes.map((t) => {
                     const count = incidentCountsByType[t] || 0;
-                    const countValues = Object.values(incidentCountsByType) as number[];
+                    const countValues = Object.values(incidentCountsByType);
                     const maxVal = Math.max(...countValues, 1);
                     // Compute percent height (ensure minimum 10px if count > 0)
                     const percentHeight = count > 0 ? (count / maxVal) * 100 : 0;
