@@ -81,7 +81,7 @@ Return JSON format:
     try {
       const fallbackResponse = getMockClassifyItemResponse();
       res.json(fallbackResponse);
-    } catch (fallbackError) {
+    } catch {
       res.status(500).json({ error: 'Failed to classify item with Gemini Vision.' });
     }
   }

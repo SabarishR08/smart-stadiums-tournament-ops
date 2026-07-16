@@ -4,15 +4,9 @@ import FanView from './components/FanView';
 import OpsDashboard from './components/OpsDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 import { 
-  ShieldAlert, 
   MapPin, 
-  Sparkles, 
-  CheckCircle, 
-  AlertCircle,
-  Accessibility,
   Menu,
-  X,
-  Volume2
+  X
 } from 'lucide-react';
 
 export default function App() {

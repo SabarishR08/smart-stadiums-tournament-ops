@@ -8,8 +8,6 @@ import {
   collection, 
   addDoc, 
   doc, 
-  getDoc, 
-  setDoc, 
   onSnapshot, 
   updateDoc, 
   deleteDoc,
@@ -29,11 +27,9 @@ import {
   TrendingUp, 
   Lock, 
   UserPlus, 
-  Send, 
   Sparkles, 
   CheckCircle, 
   RefreshCw,
-  Clock,
   MapPin
 } from 'lucide-react';
 
@@ -63,7 +59,7 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
   const [crowdZones, setCrowdZones] = useState<ZoneStatus[]>([]);
   const [incidents, setIncidents] = useState<IncidentReport[]>([]);
   const [transports, setTransports] = useState<TransportationStatus[]>([]);
-  const [broadcasts, setBroadcasts] = useState<BroadcastAnnouncement[]>([]);
+  const [_broadcasts, setBroadcasts] = useState<BroadcastAnnouncement[]>([]);
 
   // Incident form
   const [incType, setIncType] = useState<'security' | 'medical' | 'facility' | 'crowd' | 'other'>('security');

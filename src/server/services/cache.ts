@@ -4,14 +4,14 @@
  */
 
 interface CacheEntry {
-  response: any;
+  response: unknown;
   timestamp: number;
 }
 
 const queryCache: { [key: string]: CacheEntry } = {};
 const CACHE_TTL = 60000; // 60 seconds
 
-export function getCached(key: string): any | null {
+export function getCached(key: string): unknown {
   const cached = queryCache[key];
   if (cached && (Date.now() - cached.timestamp < CACHE_TTL)) {
     console.log(`Serving response from server-side cache: ${key}`);
@@ -20,7 +20,7 @@ export function getCached(key: string): any | null {
   return null;
 }
 
-export function setCache(key: string, response: any): void {
+export function setCache(key: string, response: unknown): void {
   queryCache[key] = { response, timestamp: Date.now() };
 }
 

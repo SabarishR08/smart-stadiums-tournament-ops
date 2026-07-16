@@ -53,8 +53,8 @@ export const rateLimiter = (req: express.Request, res: express.Response, next: e
   }
 
   if (ipData.count > MAX_REQUESTS) {
-    res.status(429).json({ error: 'Too many requests. Please wait a minute and try again.' });
-    return;
+    return res.status(429).json({ error: 'Too many requests. Please wait a minute and try again.' });
   }
-  next();
+  
+  return next();
 };

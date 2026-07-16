@@ -20,7 +20,7 @@ export default tseslint.config(
         varsIgnorePattern: '^_' 
       }],
       '@typescript-eslint/no-explicit-any': 'warn', // Warn, not error
-      'consistent-return': 'error',
+      'consistent-return': 'off', // Disabled - Express middleware and React useEffect patterns don't always return
       'prefer-const': 'error',
       
       // Disable overly strict rules for existing codebase

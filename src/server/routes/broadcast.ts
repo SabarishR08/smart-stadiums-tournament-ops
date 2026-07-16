@@ -83,7 +83,7 @@ Return JSON format:
     try {
       const fallbackResponse = getMockBroadcastResponse(req.body.originalText || '');
       res.json(fallbackResponse);
-    } catch (fallbackError) {
+    } catch {
       res.status(500).json({ error: 'Failed to translate announcement.' });
     }
   }

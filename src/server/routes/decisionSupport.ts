@@ -84,7 +84,7 @@ Return JSON format:
     try {
       const fallbackResponse = getMockDecisionSupportResponse(req.body.situation || '');
       res.json(fallbackResponse);
-    } catch (fallbackError) {
+    } catch {
       res.status(500).json({ error: 'Failed to generate operational decision advice.' });
     }
   }

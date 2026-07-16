@@ -108,7 +108,7 @@ Return a JSON string matching this structure:
     try {
       const fallbackResponse = getMockChatResponse(req.body.message || '');
       res.json(fallbackResponse);
-    } catch (fallbackError) {
+    } catch {
       res.status(500).json({ error: 'Failed to generate concierge response.' });
     }
   }

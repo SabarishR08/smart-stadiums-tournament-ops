@@ -10,15 +10,9 @@ import {
   ChevronDown, 
   ChevronUp, 
   Sparkles, 
-  Award,
-  Filter,
-  Minimize2,
-  Maximize2,
-  BookOpen
+  Filter
 } from 'lucide-react';
 
-import erlingHaalandPhoto from '../assets/images/erling_haaland_1784115571531.jpg';
-import harryKanePhoto from '../assets/images/harry_kane_1784115591212.jpg';
 import kalidouKoulibalyPhoto from '../assets/images/kalidou_koulibaly_1784115606990.jpg';
 import judeBellinghamPhoto from '../assets/images/jude_bellingham_1784115619964.jpg';
 import defaultUserPhoto from '../assets/images/default_user_1784115831811.jpg';

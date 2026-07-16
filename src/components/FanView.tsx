@@ -4,8 +4,6 @@ import {
   doc, 
   onSnapshot, 
   setDoc, 
-  getDoc, 
-  updateDoc, 
   increment 
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -16,24 +14,21 @@ import {
   WayfindingInfo, 
   SustainabilityScore 
 } from '../types';
-import MapSVG, { WAYFINDING_DATA } from './MapSVG';
+import MapSVG from './MapSVG';
 import { 
   Volume2, 
   VolumeX, 
   Mic, 
   MicOff, 
   Leaf, 
-  Info, 
   Users, 
   Bus, 
   Send, 
-  AlertTriangle, 
-  Accessibility, 
-  CheckCircle,
-  HelpCircle,
   QrCode,
+  Trophy,
+  Accessibility,
   Sparkles,
-  Trophy
+  CheckCircle
 } from 'lucide-react';
 
 // Static image imports for production build asset compilation
@@ -396,7 +391,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
   };
 
   // 11. Handle Sustainability Image Upload/Classify
-  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 

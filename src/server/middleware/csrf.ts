@@ -23,8 +23,8 @@ export const csrfValidation = (req: express.Request, res: express.Response, next
   const clientCsrfToken = req.headers['x-csrf-token'];
   
   if (!clientCsrfToken || clientCsrfToken !== CSRF_SECRET) {
-    res.status(403).json({ error: 'CSRF security check failed. Request rejected.' });
-    return;
+    return res.status(403).json({ error: 'CSRF security check failed. Request rejected.' });
   }
-  next();
+  
+  return next();
 };

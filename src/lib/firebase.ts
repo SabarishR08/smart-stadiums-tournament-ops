@@ -1,11 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged,
-  User
+  getAuth
 } from 'firebase/auth';
 import { 
   getFirestore, 
@@ -14,12 +9,8 @@ import {
   setDoc, 
   collection, 
   getDocs, 
-  addDoc, 
-  updateDoc, 
   query, 
   limit, 
-  orderBy, 
-  onSnapshot,
   writeBatch
 } from 'firebase/firestore';
 import { ZoneStatus, TransportationStatus } from '../types';
@@ -71,8 +62,9 @@ export interface FirestoreErrorInfo {
 }
 
 export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null): never {
+  const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
   const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
+    error: errorMessage,
     authInfo: {
       userId: auth.currentUser?.uid || null,
       email: auth.currentUser?.email || null,

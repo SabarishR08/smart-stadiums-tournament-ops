@@ -144,7 +144,7 @@ describe('StadiumPulse AI - Smart Stadium Operations & Companion Test Suite', ()
       // Mock fetch implementation for our integration test
       const mockFetch = vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({
+        json: () => ({
           reply: '¡Hola! Bienvenidos al estadio.',
           detectedLanguage: 'es'
         })
@@ -236,11 +236,11 @@ describe('StadiumPulse AI - Smart Stadium Operations & Companion Test Suite', ()
       const mockCsrfFetch = vi.fn()
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ({ token: 'dynamic_csrf_token_xyz' })
+          json: () => ({ token: 'dynamic_csrf_token_xyz' })
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ({
+          json: () => ({
             recommendations: [
               { rank: 1, action: 'Reroute incoming fans', reasoning: 'Gate B is experiencing heavy volume.' }
             ]
@@ -365,8 +365,6 @@ describe('StadiumPulse AI - Smart Stadium Operations & Companion Test Suite', ()
   // L. Quality Tests: Error Boundary Recovery Mechanics
   describe('Quality: Error Boundary Fallback State Integrity', () => {
     it('should update state to record errors correctly upon crash detection', () => {
-      const boundaryState = { hasError: false, error: null };
-      
       function simulateCrashTrigger(err: Error) {
         return { hasError: true, error: err };
       }
