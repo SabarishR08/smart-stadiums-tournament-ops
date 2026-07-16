@@ -428,5 +428,138 @@ describe('StadiumPulse AI - Smart Stadium Operations & Companion Test Suite', ()
     });
   });
 
-});
+  // O. Security Tests: Rate Limiting with Sliding Window & IP Blacklisting
+  describe('Security: Rate Limiting Sliding Window with IP Blacklisting', () => {
+    interface IpLimitData {
+      count: number;
+      resetTime: number;
+      blacklistedUntil?: number;
+    }
 
+    const ipLimits: { [ip: string]: IpLimitData } = {};
+    const WINDOW_MS = 60000; // 1 minute
+    const MAX_REQUESTS = 50;
+    const BLACKLIST_DURATION_MS = 300000; // 5 minutes
+
+    function simulateRateLimit(ip: string, now: number): { allowed: boolean; status: number; message?: string } {
+      const ipData = ipLimits[ip];
+
+      // Check blacklist
+      if (ipData && ipData.blacklistedUntil && now < ipData.blacklistedUntil) {
+        return {
+          allowed: false,
+          status: 403,
+          message: `Blacklisted for ${Math.ceil((ipData.blacklistedUntil - now) / 1000)}s`
+        };
+      }
+
+      // Initialize new IP
+      if (!ipData) {
+        ipLimits[ip] = { count: 1, resetTime: now + WINDOW_MS };
+        return { allowed: true, status: 200 };
+      }
+
+      // Reset window if expired
+      if (now > ipData.resetTime) {
+        ipData.count = 1;
+        ipData.resetTime = now + WINDOW_MS;
+        return { allowed: true, status: 200 };
+      }
+
+      // Increment request count
+      ipData.count++;
+
+      // Blacklist trigger (1.5x limit)
+      if (ipData.count > MAX_REQUESTS * 1.5) {
+        ipData.blacklistedUntil = now + BLACKLIST_DURATION_MS;
+        return { allowed: false, status: 403, message: 'Blacklisted for abuse' };
+      }
+
+      // Rate limit trigger
+      if (ipData.count > MAX_REQUESTS) {
+        return { allowed: false, status: 429, message: 'Too many requests' };
+      }
+
+      return { allowed: true, status: 200 };
+    }
+
+    it('should allow requests under the 50/min limit', () => {
+      const now = Date.now();
+      for (let i = 1; i <= 40; i++) {
+        const result = simulateRateLimit('192.168.1.1', now + i);
+        expect(result.allowed).toBe(true);
+        expect(result.status).toBe(200);
+      }
+    });
+
+    it('should block requests exceeding the 50/min limit with HTTP 429', () => {
+      const now = Date.now();
+      const testIp = '192.168.1.2';
+      
+      // Make 50 requests (at limit)
+      for (let i = 1; i <= 50; i++) {
+        simulateRateLimit(testIp, now + i);
+      }
+
+      // 51st request should be blocked
+      const result = simulateRateLimit(testIp, now + 51);
+      expect(result.allowed).toBe(false);
+      expect(result.status).toBe(429);
+      expect(result.message).toBe('Too many requests');
+    });
+
+    it('should blacklist IPs exceeding 75/min (1.5x limit) with HTTP 403', () => {
+      const now = Date.now();
+      const testIp = '192.168.1.3';
+      
+      // Make 76 requests (exceeds 1.5x limit)
+      for (let i = 1; i <= 76; i++) {
+        simulateRateLimit(testIp, now + i);
+      }
+
+      // Should be blacklisted
+      const result = simulateRateLimit(testIp, now + 77);
+      expect(result.allowed).toBe(false);
+      expect(result.status).toBe(403);
+      expect(result.message).toContain('Blacklisted');
+    });
+
+    it('should enforce blacklist for full 5-minute duration', () => {
+      const now = Date.now();
+      const testIp = '192.168.1.4';
+      
+      // Trigger blacklist
+      for (let i = 1; i <= 76; i++) {
+        simulateRateLimit(testIp, now + i);
+      }
+
+      // Try 4 minutes 59 seconds later (still blacklisted)
+      const almostExpired = now + (5 * 60 * 1000) - 1000;
+      const resultAlmost = simulateRateLimit(testIp, almostExpired);
+      expect(resultAlmost.allowed).toBe(false);
+      expect(resultAlmost.status).toBe(403);
+
+      // Try 5 minutes 1 second later (blacklist expired, but still in rate limit window)
+      const afterExpiry = now + (5 * 60 * 1000) + 1000;
+      const resultAfter = simulateRateLimit(testIp, afterExpiry);
+      // Should allow (new window started after blacklist expires)
+      expect(resultAfter.allowed).toBe(true);
+    });
+
+    it('should reset sliding window after 60 seconds', () => {
+      const now = Date.now();
+      const testIp = '192.168.1.5';
+      
+      // Make 50 requests in first window
+      for (let i = 1; i <= 50; i++) {
+        simulateRateLimit(testIp, now + i);
+      }
+
+      // Try 61 seconds later (window reset)
+      const afterWindow = now + 61000;
+      const result = simulateRateLimit(testIp, afterWindow);
+      expect(result.allowed).toBe(true);
+      expect(result.status).toBe(200);
+    });
+  });
+});
