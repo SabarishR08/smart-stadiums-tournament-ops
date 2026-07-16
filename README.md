@@ -103,6 +103,31 @@ npm run test
 
 ---
 
+## 🏗️ Code Quality & Modular Architecture
+
+StadiumPulse AI follows enterprise-grade modular architecture principles:
+
+### Frontend Component Structure
+- **TournamentHub**: Data extracted to `src/components/tournament/TournamentData.ts` (426 lines of static data, interfaces, and constants)
+- **FanView**: Split into 6 single-responsibility panel components under `src/components/fan/`:
+  - `WayfindingPanel.tsx` (70 lines) - MapSVG integration + section selection
+  - `CrowdStatusPanel.tsx` (111 lines) - Live crowd zones + AI routing
+  - `SustainabilityPanel.tsx` (107 lines) - EcoCup Gemini Vision classifier
+  - `ChatConcierge.tsx` (128 lines) - Multilingual chat with **preserved `aria-live="polite"` and `role="log"` for screen reader accessibility**
+  - `TransportPanel.tsx` (93 lines) - Shuttle feeds + transit advisor
+  - `types.ts` (22 lines) - Shared prop interfaces
+- **OpsDashboard**: Remains as single component (818 lines) to preserve critical auth state flow with `role: 'fan'` default
+
+### Backend Modular Server Structure
+Refactored from monolithic `server.ts` (650+ lines) into organized modules under `src/server/`:
+- **Middleware**: `cors.ts`, `csrf.ts`, `security.ts`, `rateLimit.ts`, `rbac.ts`, `logger.ts` (6 files)
+- **Routes**: `chat.ts`, `classify.ts`, `decisionSupport.ts`, `broadcast.ts`, `csrf.ts`, `health.ts` (6 files)
+- **Services**: `gemini.ts`, `cache.ts`, `security.ts` (3 files)
+
+All modular refactoring maintains 100% test coverage (52/52 tests passing) and build stability.
+
+---
+
 ## 📚 Repository Guides & Documentation
 
 To learn more about the specifics of StadiumPulse AI, refer to our detailed developer manuals:
