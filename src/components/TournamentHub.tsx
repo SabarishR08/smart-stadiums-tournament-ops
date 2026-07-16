@@ -12,6 +12,7 @@ import {
   Sparkles, 
   Filter
 } from 'lucide-react';
+import defaultUserPhoto from '../assets/images/default_user_1784115831811.jpg';
 
 // Import all data structures and constants from TournamentData
 import {

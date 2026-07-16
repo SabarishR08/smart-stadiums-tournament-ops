@@ -7,7 +7,7 @@ import { SharedFanViewProps } from './types';
 interface WayfindingPanelProps extends SharedFanViewProps {
   selectedSection: string | null;
   selectedWayfinding: WayfindingInfo | null;
-  onSectionSelect: (section: string) => void;
+  onSectionSelect: (info: WayfindingInfo) => void;
 }
 
 export default function WayfindingPanel({
