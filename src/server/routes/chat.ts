@@ -12,11 +12,18 @@ import { ChatMessage } from '../../types.js';
 
 export const chatRouter = express.Router();
 
+interface ChatReqBody {
+  message?: string;
+  history?: ChatMessage[];
+}
+
 chatRouter.post('/chat', (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const handleRequest = async () => {
+    let message = '';
     try {
-      const message = req.body && typeof req.body.message === 'string' ? req.body.message : '';
-      const history = req.body && Array.isArray(req.body.history) ? req.body.history : [];
+      const body = (req.body || {}) as ChatReqBody;
+      message = typeof body.message === 'string' ? body.message : '';
+      const history = Array.isArray(body.history) ? body.history : [];
 
       // Validate inputs
       if (!message || message.trim() === '') {
@@ -106,7 +113,7 @@ Return a JSON string matching this structure:
         console.warn('Error in chat API, falling back to smart mock response:', err);
       }
       try {
-        const fallbackResponse = getMockChatResponse((req.body && typeof req.body.message === 'string' ? req.body.message : '') || '');
+        const fallbackResponse = getMockChatResponse(message);
         res.json(fallbackResponse);
       } catch {
         res.status(500).json({ error: 'Failed to generate concierge response.' });

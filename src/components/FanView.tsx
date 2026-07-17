@@ -116,8 +116,10 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
     const fetchCsrfToken = async () => {
       try {
         const response = await fetch('/api/csrf-token');
-        const data = await response.json();
-        setCsrfToken(data.token);
+        const data = (await response.json()) as { token?: string };
+        if (data && typeof data.token === 'string') {
+          setCsrfToken(data.token);
+        }
       } catch (error) {
         console.error('Failed to fetch CSRF token:', error);
       }
@@ -221,8 +223,8 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
             message: `Analyze this current crowd densities of gates at the World Cup Stadium and give a 1-line friendly routing suggestion: ${crowdZones.map(z => `${z.name}: ${z.density} density (${z.count} fans)`).join(', ')}`
           })
         });
-        const data = await response.json();
-        if (data.reply) {
+        const data = (await response.json()) as { reply?: string };
+        if (data && typeof data.reply === 'string') {
           setCrowdRecommendation(data.reply);
         }
       } catch (err) {
@@ -362,8 +364,8 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
         })
       });
 
-      const data = await response.json();
-      if (response.ok && data.reply) {
+      const data = (await response.json()) as { reply?: string; error?: string };
+      if (response.ok && typeof data.reply === 'string') {
         const assistantMsgObj: ChatMessage = {
           id: 'msg_' + (Date.now() + 1),
           sender: 'assistant',
@@ -405,8 +407,8 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
         },
         body: JSON.stringify({ message: queryPrompt })
       });
-      const data = await response.json();
-      if (data.reply) {
+      const data = (await response.json()) as { reply?: string };
+      if (data && typeof data.reply === 'string') {
         setTransitRouteSuggestion(data.reply);
       } else {
         throw new Error();
@@ -450,10 +452,22 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
           })
         });
 
-        const data = await response.json();
-        if (response.ok && data.category) {
-          setClassificationResult(data);
-          setScanMessage(`Success! Identified ${data.itemName}.`);
+        const data = (await response.json()) as {
+          category?: string;
+          itemName?: string;
+          scoreAwarded?: number;
+          correctBin?: string;
+          error?: string;
+        };
+        if (response.ok && typeof data.category === 'string') {
+          setClassificationResult({
+            category: data.category,
+            itemName: data.itemName || 'Item',
+            scoreAwarded: data.scoreAwarded || 10,
+            correctBin: data.correctBin || 'Bin',
+            ecoTip: 'Keep up the sustainable work!'
+          });
+          setScanMessage(`Success! Identified ${data.itemName || 'item'}.`);
           
           const docRef = doc(db, 'sustainability_scores', sessionUserId);
           await setDoc(docRef, {
@@ -463,7 +477,7 @@ export default function FanView({ accessibilityMode, setAccessibilityMode }: Fan
             updatedAt: new Date().toISOString()
           }, { merge: true });
 
-          speakText(`Item identified as ${data.category}. Dispose in the ${data.correctBin}. You earned ${data.scoreAwarded} sustainability points!`);
+          speakText(`Item identified as ${data.category}. Dispose in the ${data.correctBin || 'correct bin'}. You earned ${data.scoreAwarded || 10} sustainability points!`);
         } else {
           throw new Error(data.error || 'Failed to classify.');
         }

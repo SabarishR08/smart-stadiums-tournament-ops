@@ -9,11 +9,17 @@ import { getAiClient, isGeminiConfigured, getMockClassifyItemResponse, safeJsonP
 
 export const classifyRouter = express.Router();
 
+interface ClassifyReqBody {
+  imageBase64?: string;
+  mimeType?: string;
+}
+
 classifyRouter.post('/classify-item', (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const handleRequest = async () => {
     try {
-      const imageBase64 = req.body && typeof req.body.imageBase64 === 'string' ? req.body.imageBase64 : '';
-      const mimeType = req.body && typeof req.body.mimeType === 'string' ? req.body.mimeType : 'image/jpeg';
+      const body = (req.body || {}) as ClassifyReqBody;
+      const imageBase64 = typeof body.imageBase64 === 'string' ? body.imageBase64 : '';
+      const mimeType = typeof body.mimeType === 'string' ? body.mimeType : 'image/jpeg';
 
       if (!imageBase64 || imageBase64.trim() === '') {
         res.status(400).json({ error: 'Invalid or missing image data.' });

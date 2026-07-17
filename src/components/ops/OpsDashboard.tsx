@@ -69,8 +69,10 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
     const fetchCsrfToken = async () => {
       try {
         const response = await fetch('/api/csrf-token');
-        const data = await response.json();
-        setCsrfToken(data.token);
+        const data = (await response.json()) as { token?: string };
+        if (data && typeof data.token === 'string') {
+          setCsrfToken(data.token);
+        }
       } catch (error) {
         console.error('Failed to fetch CSRF token:', error);
       }
@@ -184,17 +186,21 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
         })
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as {
+        action?: string;
+        priority?: 'low' | 'medium' | 'high' | 'critical';
+        reply?: string;
+      };
       let aiAction = 'Deploy localized stewards to inspect.';
       let aiPriority: 'low' | 'medium' | 'high' | 'critical' = 'medium';
 
-      if (response.ok) {
+      if (response.ok && data) {
         if (data.action || data.priority) {
           aiAction = data.action || aiAction;
           aiPriority = data.priority || aiPriority;
         } else if (data.reply) {
           try {
-            const parsed = JSON.parse(data.reply);
+            const parsed = JSON.parse(data.reply) as { action?: string; priority?: 'low' | 'medium' | 'high' | 'critical' };
             aiAction = parsed.action || aiAction;
             aiPriority = parsed.priority || aiPriority;
           } catch {
@@ -246,7 +252,7 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
         body: JSON.stringify({ situation: situationInput })
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as { recommendations?: Array<string | { action?: string; rank?: number; reasoning?: string }> };
       if (response.ok && data.recommendations) {
         setDecisionRecommendations(data.recommendations);
       } else {
@@ -278,7 +284,7 @@ export default function OpsDashboard({ accessibilityMode }: OpsDashboardProps) {
         body: JSON.stringify({ originalText: broadcastInput })
       });
 
-      const data = await response.json();
+      const data = (await response.json()) as { translations?: Record<string, string> };
       if (response.ok && data.translations) {
         setBroadcastResult(data.translations);
 

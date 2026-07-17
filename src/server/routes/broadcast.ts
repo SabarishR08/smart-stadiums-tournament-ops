@@ -11,10 +11,16 @@ import { checkStaffRole } from '../middleware/rbac.js';
 
 export const broadcastRouter = express.Router();
 
+interface BroadcastReqBody {
+  originalText?: string;
+}
+
 broadcastRouter.post('/broadcast', checkStaffRole, (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const handleRequest = async () => {
+    let originalText = '';
     try {
-      const originalText = req.body && typeof req.body.originalText === 'string' ? req.body.originalText : '';
+      const body = (req.body || {}) as BroadcastReqBody;
+      originalText = typeof body.originalText === 'string' ? body.originalText : '';
 
       if (!originalText || originalText.trim() === '') {
         res.status(400).json({ error: 'Broadcast text cannot be empty.' });
@@ -82,7 +88,7 @@ Return JSON format:
         console.warn('Error in translation broadcast API, falling back to smart mock translations:', err);
       }
       try {
-        const fallbackResponse = getMockBroadcastResponse((req.body && typeof req.body.originalText === 'string' ? req.body.originalText : '') || '');
+        const fallbackResponse = getMockBroadcastResponse(originalText);
         res.json(fallbackResponse);
       } catch {
         res.status(500).json({ error: 'Failed to translate announcement.' });

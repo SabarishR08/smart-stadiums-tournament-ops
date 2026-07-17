@@ -11,10 +11,16 @@ import { checkStaffRole } from '../middleware/rbac.js';
 
 export const decisionSupportRouter = express.Router();
 
+interface DecisionReqBody {
+  situation?: string;
+}
+
 decisionSupportRouter.post('/decision-support', checkStaffRole, (req: express.Request, res: express.Response, next: express.NextFunction) => {
   const handleRequest = async () => {
+    let situation = '';
     try {
-      const situation = req.body && typeof req.body.situation === 'string' ? req.body.situation : '';
+      const body = (req.body || {}) as DecisionReqBody;
+      situation = typeof body.situation === 'string' ? body.situation : '';
 
       if (!situation || situation.trim() === '') {
         res.status(400).json({ error: 'Situation scenario cannot be empty.' });
@@ -83,7 +89,7 @@ Return JSON format:
         console.warn('Error in decision support API, falling back to smart mock guidelines:', err);
       }
       try {
-        const fallbackResponse = getMockDecisionSupportResponse((req.body && typeof req.body.situation === 'string' ? req.body.situation : '') || '');
+        const fallbackResponse = getMockDecisionSupportResponse(situation);
         res.json(fallbackResponse);
       } catch {
         res.status(500).json({ error: 'Failed to generate operational decision advice.' });

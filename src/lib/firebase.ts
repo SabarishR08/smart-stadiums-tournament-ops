@@ -16,17 +16,18 @@ import {
 import { ZoneStatus, TransportationStatus } from '../types';
 
 // Firebase configuration from environment variables
+const env = import.meta.env as Record<string, string | undefined>;
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCf4w_MdoE4IFJhykHjcGpC2rHVIOa2t2Q",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "agentflow-prod-assistant.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "agentflow-prod-assistant",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "agentflow-prod-assistant.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1025941268003",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:1025941268003:web:1158f9e889aa17b4b1f396",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-MV596YX77T"
+  apiKey: env.VITE_FIREBASE_API_KEY || "AIzaSyCf4w_MdoE4IFJhykHjcGpC2rHVIOa2t2Q",
+  authDomain: env.VITE_FIREBASE_AUTH_DOMAIN || "agentflow-prod-assistant.firebaseapp.com",
+  projectId: env.VITE_FIREBASE_PROJECT_ID || "agentflow-prod-assistant",
+  storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET || "agentflow-prod-assistant.firebasestorage.app",
+  messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID || "1025941268003",
+  appId: env.VITE_FIREBASE_APP_ID || "1:1025941268003:web:1158f9e889aa17b4b1f396",
+  measurementId: env.VITE_FIREBASE_MEASUREMENT_ID || "G-MV596YX77T"
 };
 
-const firestoreDatabaseId = import.meta.env.VITE_FIRESTORE_DATABASE_ID || "(default)";
+const firestoreDatabaseId = env.VITE_FIRESTORE_DATABASE_ID || "(default)";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -92,7 +93,8 @@ export async function getUserRole(uid: string): Promise<string | null> {
     const userDocRef = doc(db, 'users', uid);
     const userDocSnap = await getDoc(userDocRef);
     if (userDocSnap.exists()) {
-      return userDocSnap.data().role || null;
+      const data = userDocSnap.data() as { role?: string } | undefined;
+      return (data && data.role) || null;
     }
     return null;
   } catch (error) {
@@ -127,7 +129,7 @@ export async function setUserRole(uid: string, email: string, role: string): Pro
 export async function seedInitialDataIfEmpty() {
   try {
     const crowdCol = collection(db, 'crowd_status');
-    let crowdSnap;
+    let crowdSnap: import('firebase/firestore').QuerySnapshot | null = null;
     try {
       crowdSnap = await getDocs(query(crowdCol, limit(1)));
     } catch (error) {
@@ -161,7 +163,7 @@ export async function seedInitialDataIfEmpty() {
     }
 
     const transCol = collection(db, 'transportation');
-    let transSnap;
+    let transSnap: import('firebase/firestore').QuerySnapshot | null = null;
     try {
       transSnap = await getDocs(query(transCol, limit(1)));
     } catch (error) {
