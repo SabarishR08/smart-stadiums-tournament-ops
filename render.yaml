@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: stadiumpulse-ai
+    runtime: node
+    region: oregon
+    plan: free
+
+    # Build: compile Vite frontend + bundle Express server
+    buildCommand: npm install && npm run build
+
+    # Start the bundled Express server
+    startCommand: npm start
+
+    # Render injects PORT automatically; the app reads it via process.env.PORT
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      # Render sets this automatically — used for CORS origin lock
+      - key: APP_URL
+        fromService:
+          type: web
+          name: stadiumpulse-ai
+          property: host
+
+      # ── Set these manually in the Render dashboard (Environment tab) ──────
+      - key: GEMINI_API_KEY
+        sync: false          # mark as secret, fill in dashboard
+
+      - key: VITE_FIREBASE_API_KEY
+        sync: false
+      - key: VITE_FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: VITE_FIREBASE_PROJECT_ID
+        sync: false
+      - key: VITE_FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: VITE_FIREBASE_MESSAGING_SENDER_ID
+        sync: false
+      - key: VITE_FIREBASE_APP_ID
+        sync: false
+      # Only needed for a non-default Firestore database; leave blank otherwise
+      - key: VITE_FIREBASE_DATABASE_ID
+        sync: false

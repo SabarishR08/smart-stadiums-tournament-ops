@@ -1,0 +1,6 @@
+{
+  "name": "Smart Stadiums Tournament Ops",
+  "description": "A comprehensive real-time operations management platform for stadium tournaments.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
