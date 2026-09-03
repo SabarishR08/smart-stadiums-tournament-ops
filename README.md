@@ -1,4 +1,82 @@
-# StadiumPulse AI 🏟️
+# Smart Stadiums Tournament Ops
+
+![License](https://img.shields.io/badge/license-MIT-green) ![Language](https://img.shields.io/badge/language-TypeScript-informational) ![Docker](https://img.shields.io/badge/docker-ready-2496ed) ![Deploy](https://img.shields.io/badge/deploy-Render-46e3b7)
+
+
+## 📌 Overview
+
+StadiumPulse AI — GenAI-enabled smart stadiums and tournament operations solution for FIFA World Cup 2026 (Challenge 4)
+
+## 🏗️ Architecture
+
+```text
+Vite, React   (frontend)
+     │   REST / WebSocket
+     ▼
+Express   (API server)
+     │
+     ├──▶ Database — Firestore (Google)
+     └──▶ External services — Google Gemini
+```
+
+## 🧰 Tech Stack
+
+- **Language:** TypeScript
+- **Backend:** Express
+- **Frontend:** Vite, React
+- **Database:** Firestore (Google)
+- **Integrations:** Google Gemini
+- **Deployment:** Docker container / Render (render.yaml)
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- Docker (optional, for container runs)
+
+### 1. Clone
+
+```bash
+git clone https://github.com/SabarishR08/smart-stadiums-tournament-ops.git
+cd smart-stadiums-tournament-ops
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment
+
+```bash
+cp .env.example .env   # then fill in values
+```
+
+Environment variables used: `GEMINI_API_KEY`, `APP_URL`, `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_MEASUREMENT_ID`, `VITE_FIRESTORE_DATABASE_ID`.
+
+External services involved: Google Gemini.
+
+### 4. Run
+
+```bash
+npm run dev
+```
+
+### (Alternative) Run with Docker
+
+```bash
+docker build -t smart-stadiums-tournament-ops .
+docker run -p 5000:5000 smart-stadiums-tournament-ops
+```
+
+## ☁️ Deployment
+
+Defined in `render.yaml` (web service `stadiumpulse-ai`) with `autoDeploy` enabled — pushes to the default branch trigger a Render deploy.
+
+
+---
 
 **A GenAI-Enabled Solution for Smart Stadiums & Tournament Operations — FIFA World Cup 2026**
 
@@ -313,6 +391,8 @@ The AI Tactical Decision Support Console (`DecisionSupportPanel.tsx` + `/api/dec
 
 ---
 
-## License
+---
 
-MIT — see [LICENSE](LICENSE).
+## 📄 License
+
+[MIT](LICENSE) — © 2026 Sabarish R.
